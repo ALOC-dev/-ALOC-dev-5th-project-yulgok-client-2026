@@ -1,3 +1,4 @@
+import { KAKAO_AUTH_URL } from '../../api/auth/kakaoLogin.js';
 import KakaoBtn from './components/KakaoBtn.jsx';
 
 function Login() {
@@ -20,7 +21,10 @@ function Login() {
                 </p>
             </section>
             <div className="mt-auto mb-4">
-                <KakaoBtn />
+                <a href={KAKAO_AUTH_URL}>
+                    <KakaoBtn />
+                </a>
+                
             </div>
         </main>
     );

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-function CertificateBtnGroup({prev}) {
+function CertificateBtnGroup({prev, onSubmit, disabled = false}) {
     const navigate = useNavigate();
 
     return(
@@ -14,8 +14,9 @@ function CertificateBtnGroup({prev}) {
             </button>
             <button
                 type="button"
-                className="flex flex-1 justify-center h-movebtn rounded-movebtn bg-brand-primary font-sans font-bold text-white text-md px-4 py-3"
-                onClick={() => console.log("yaho")}
+                disabled={disabled}
+                className="flex flex-1 justify-center h-movebtn rounded-movebtn bg-brand-primary font-sans font-bold text-white text-md px-4 py-3 disabled:cursor-not-allowed disabled:opacity-40"
+                onClick={onSubmit}
             > 
                 인증 요청 보내기
             </button>

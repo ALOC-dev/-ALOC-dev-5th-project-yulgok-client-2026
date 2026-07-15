@@ -9,6 +9,6 @@ export const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id
 
 // 카카오 인가 코드 백엔드에 전달
 export async function postKakaoAuthCode(authCode) {
-    const reponse = await axios.post(`${baseUrl}/api/auth/kakao/callback`, {code: authCode});
+    const reponse = await axios.get(`${baseUrl}/api/auth/kakao/callback?code=${authCode}`);
     return reponse.data;
 }

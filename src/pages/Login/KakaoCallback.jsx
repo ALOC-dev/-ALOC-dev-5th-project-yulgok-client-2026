@@ -1,10 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { postKakaoAuthCode } from '../../api/auth/kakaoLogin.js';
 
 function KakaoCallback() {
+    const navigate = useNavigate();
+    const requestedRef = useRef(false);
+
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const authCode = urlParams.get('code');
+        if (requestedRef.current) return;
+        requestedRef.current = true;
+        const authCode = new URLSearchParams(window.location.search).get('code');
 
         if(!authCode) {
             console.error('카카오 인가 코드가 없습니다.');
@@ -13,10 +18,10 @@ function KakaoCallback() {
 
         async function requestAccessToken() {
             try {
-                const data = await postKakaoAuthCode(authCode);
+                const response = await postKakaoAuthCode(authCode);
                 console.log('액세스 토큰 발급 성공');
-                localStorage.setItem('accessToken', data.accessToken);
-                window.location.href = '../UserDetails/UserDetails.jsx';
+                localStorage.setItem('accessToken', response.data.accessToken);
+                navigate('/user/details');
             }
             catch (error) {
                 console.error('액세스 토큰 발급 실패');

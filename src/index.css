@@ -3,11 +3,17 @@
 :root {
   --brand-background: #EEF3FA;
   --brand-primary: #1D3D7A;
+  --ui-sub: #E2EAF5;
   --text-basic: #172238;
   --text-basic-muted: #6E7B92;
   --text-primary: #1F3F7A;
   --text-secondary: #3D6FBE;
   --border: #e5e4e7;
+
+  --radius-movebtn: 22px;
+  --radius-input: 18px;
+  --radius-select: 16px;
+  --radius-textarea: 16px;
 
   --sans: Pretendard, 'ui-sans-serif', system-ui, sans-serif;
   --heading: Pretendard, 'ui-sans-serif', system-ui, sans-serif;
@@ -35,13 +41,23 @@
 @theme {
   --color-brand-primary: var(--brand-primary);
   --color-brand-background: var(--brand-background);
+  --color-ui-sub: var(--ui-sub);
   --color-fg-basic: var(--text-basic);
   --color-fg-basic-muted: var(--text-basic-muted);
   --color-fg-primary: var(--text-primary);
   --color-fg-secondary: var(--text-secondary);
 
-  --font-snas: var(--sans);
+  --radius-movebtn: var(--radius-movebtn);
+  --radius-input: var(--radius-input);
+  --radius-select: var(--radius-select);
+  --radius-textarea: var(--radius-textarea);
+
+  --font-sans: var(--sans);
   --font-heading: var(--heading);
+
+  --height-movebtn: 50px;
+  --width-prevbtn: 68px;
+  --width-nextbtn: 238px;
 }
 
 /* 다크모드 설정

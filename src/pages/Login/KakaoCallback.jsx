@@ -7,7 +7,7 @@ function KakaoCallback() {
         const authCode = urlParams.get('code');
 
         if(!authCode) {
-            console.error('카카오 인가 코드가 없습니다.');b
+            console.error('카카오 인가 코드가 없습니다.');
             return;
         }
 
@@ -25,6 +25,8 @@ function KakaoCallback() {
 
         requestAccessToken();
     }, []);
+
+    return <div>로그인 처리 중...</div>;
 }
 
 export default KakaoCallback;

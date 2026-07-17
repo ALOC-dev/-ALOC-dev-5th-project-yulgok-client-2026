@@ -13,3 +13,19 @@ export async function getMatchingStatus() {
 
   return Array.isArray(response.data?.data) ? response.data.data : [];
 }
+
+// 새로운 매칭을 생성하는 요청
+export async function executeMatching() {
+  const accessToken = localStorage.getItem('accessToken');
+  const response = await axios.post(
+    `${baseUrl}/match`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return response.data;
+}

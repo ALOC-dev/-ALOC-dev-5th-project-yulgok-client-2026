@@ -46,3 +46,17 @@ export function ChevronDownIcon(props) {
     </svg>
   );
 }
+
+export function RefreshIcon(props) {
+  return (
+    <svg {...commonProps} {...props}>
+      <path
+        d="M19 8a7.2 7.2 0 1 0 .2 7.6M19 4v4h-4"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

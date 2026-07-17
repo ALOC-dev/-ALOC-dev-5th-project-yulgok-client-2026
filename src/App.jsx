@@ -9,6 +9,10 @@ import SurveyClean from './pages/Surveys/SurveyClean.jsx'
 import SurveyLiving from './pages/Surveys/SurveyLiving.jsx'
 import SurveyIntroduce from './pages/Surveys/SurveyIntroduce.jsx'
 import Certification from './pages/Certification/Certification.jsx'
+import MainLayout from './layout/MainLayout.jsx'
+import Matching from './pages/Matching/Matching.jsx'
+import Chat from './pages/Chat/Chat.jsx'
+import MyPage from './pages/MyPage/MyPage.jsx'
 
 function App() {
 
@@ -24,6 +28,12 @@ function App() {
         <Route path="/surveys/living" element={<SurveyLiving />} />
         <Route path="/surveys/introduce" element={<SurveyIntroduce />} />
         <Route path="/certification" element={<Certification />} />
+
+        <Route element={<MainLayout />}>
+          <Route path="/matching" element={<Matching />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/my" element={<MyPage />} />
+        </Route>
       </Routes>
     </>
   )

@@ -150,20 +150,41 @@ function MatchingCardStack({ people, onStatusRefresh }) {
             ? `translateX(${frontX}px) rotate(${frontX / 24}deg)`
             : backTransforms[stackIndex] ?? backTransforms[2];
 
+          const transitionClass =
+            !isDragging || exitDirection ? 'transition-transform duration-[240ms] ease-out' : '';
+          const zIndex = visiblePeople.length - stackIndex;
+
+          if (isFront) {
+            return (
+              <div
+                key={person.userId ?? `${person.name}-${stackIndex}`}
+                className={`relative ${transitionClass}`}
+                style={{ zIndex, transform }}
+              >
+                <MatchingCard person={person} isFront />
+              </div>
+            );
+          }
+
           return (
             <div
               key={person.userId ?? `${person.name}-${stackIndex}`}
-              className={`${isFront ? 'relative' : 'pointer-events-none absolute inset-x-0 top-3'} ${
-                !isDragging || exitDirection ? 'transition-transform duration-[240ms] ease-out' : ''
-              }`}
+              className="pointer-events-none absolute inset-0"
               style={{
-                zIndex: visiblePeople.length - stackIndex,
-                transform,
-                opacity: isFront ? 1 : Math.max(0.58, 0.88 - stackIndex * 0.13),
+                zIndex,
+                clipPath: 'inset(-4rem -4rem 0 -4rem)',
               }}
-              aria-hidden={!isFront}
+              aria-hidden="true"
             >
-              <MatchingCard person={person} isFront={isFront} />
+              <div
+                className={transitionClass}
+                style={{
+                  transform,
+                  opacity: Math.max(0.58, 0.88 - stackIndex * 0.13),
+                }}
+              >
+                <MatchingCard person={person} />
+              </div>
             </div>
           );
         })}

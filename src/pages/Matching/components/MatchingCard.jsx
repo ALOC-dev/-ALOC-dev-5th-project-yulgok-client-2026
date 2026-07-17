@@ -40,7 +40,7 @@ const PREFERENCE_LABELS = {
 
 const MATCH_STATUS_INFO = {
   RECOMMENDED: {
-    label: '나에게 추천된 룸메예요',
+    label: '나에게 추천된 룸매예요',
     badgeClass: 'text-[#315f9f]',
     dotClass: 'bg-[#5d8fd2]',
   },
@@ -70,7 +70,7 @@ const MATCH_STATUS_INFO = {
     dotClass: 'bg-[#e7a83e]',
   },
   FINAL_CONFIRMED: {
-    label: '최종 룸메이트로 확정됐어요',
+    label: '최종 룸매로 확정됐어요',
     badgeClass: 'text-[#23805c]',
     dotClass: 'bg-[#39a978]',
   },
@@ -145,7 +145,7 @@ function MatchingCard({ person, isFront = false }) {
 
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
         <div
-          className={`absolute left-[clamp(0.75rem,4vw,1rem)] top-[clamp(0.75rem,4vw,1rem)] flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 rounded-full bg-white/95 px-[clamp(0.625rem,3vw,0.75rem)] py-[clamp(0.375rem,2vw,0.5rem)] text-[clamp(0.625rem,2.8vw,0.6875rem)] font-extrabold shadow-[0_5px_16px_rgba(30,57,98,0.14)] backdrop-blur-sm ${statusInfo.badgeClass}`}
+          className={`absolute left-[clamp(0.75rem,4vw,1rem)] top-[clamp(0.75rem,4vw,1rem)] flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 rounded-full bg-white/95 px-[clamp(0.625rem,3vw,0.75rem)] py-[clamp(0.25rem,1.5vw,0.375rem)] text-[clamp(0.625rem,2.8vw,0.6875rem)] font-extrabold leading-none shadow-[0_5px_16px_rgba(30,57,98,0.14)] backdrop-blur-sm ${statusInfo.badgeClass}`}
         >
           {person.matchStatus?.startsWith('HEART_') ? (
             <FilledHeartIcon className="h-3.5 w-3.5 shrink-0 text-[#ff668b]" aria-hidden="true" />

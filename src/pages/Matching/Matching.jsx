@@ -81,7 +81,7 @@ function Matching() {
       <header className="flex min-w-0 items-center justify-between gap-[clamp(0.5rem,3vw,0.75rem)]">
         <div className="min-w-0">
           <h1 className="font-heading text-[clamp(1.125rem,3vw,1.5rem)] font-extrabold tracking-[-0.02em] text-fg-primary">
-            오늘의 룸메
+            오늘의 룸매
           </h1>
           <p
             className={`mt-1 text-xs font-medium ${
@@ -102,7 +102,7 @@ function Matching() {
             role="status"
           >
             <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#cad8ec] border-t-brand-primary" />
-            오늘의 룸메이트를 찾고 있어요...
+            오늘의 룸매를 찾고 있어요...
           </div>
         )}
 
@@ -119,7 +119,7 @@ function Matching() {
           <div className="mt-24 w-full max-w-[320px] rounded-[clamp(1.25rem,6vw,1.5rem)] bg-white px-[clamp(1rem,6vw,1.5rem)] py-[clamp(1.5rem,7vw,2rem)] text-center shadow-[0_14px_36px_rgba(38,73,126,0.1)]">
             <p className="text-sm font-bold text-fg-primary">아직 오늘의 추천이 없어요</p>
             <p className="mt-2 text-xs leading-5 text-fg-basic-muted">
-              오른쪽 위 매칭 버튼을 눌러 잘 맞는 룸메이트를 찾아보세요.
+              오른쪽 위 매칭 버튼을 눌러 잘 맞는 룸매를 찾아보세요.
             </p>
           </div>
         )}

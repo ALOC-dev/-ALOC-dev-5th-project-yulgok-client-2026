@@ -12,6 +12,7 @@ import Certification from './pages/Certification/Certification.jsx'
 import MainLayout from './layout/MainLayout.jsx'
 import Matching from './pages/Matching/Matching.jsx'
 import Chat from './pages/Chat/Chat.jsx'
+import ChatRoom from './pages/Chat/ChatRoom.jsx'
 import MyPage from './pages/MyPage/MyPage.jsx'
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/surveys/living" element={<SurveyLiving />} />
         <Route path="/surveys/introduce" element={<SurveyIntroduce />} />
         <Route path="/certification" element={<Certification />} />
+        <Route path="/chat/:roomId" element={<ChatRoom />} />
 
         <Route element={<MainLayout />}>
           <Route path="/matching" element={<Matching />} />

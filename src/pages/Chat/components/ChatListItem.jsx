@@ -33,13 +33,29 @@ function ChatListItem({
   lastMessageTime,
   unreadCount,
   roomId,
+  status,
 }) {
+  const navigate = useNavigate();
+
   return (
     <li data-room-id={roomId}>
       <button
         type="button"
         className="flex w-full items-center gap-3 border-b border-[#dce5f1] px-2 py-4 text-left transition-colors hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-primary"
         aria-label={`${partnerName}님과의 채팅방${unreadCount > 0 ? `, 읽지 않은 메시지 ${unreadCount}개` : ''}`}
+        onClick={() => navigate(`/chat/${roomId}`, {
+          state: {
+            room: {
+              roomId,
+              partnerProfileImageUrl,
+              partnerName,
+              lastMessage,
+              lastMessageTime,
+              unreadCount,
+              status,
+            },
+          },
+        })}
       >
         <div className="relative shrink-0">
           <img
@@ -61,6 +77,7 @@ function ChatListItem({
           >
             {lastMessage}
           </p>
+          {status === 'CLOSED' && <span className="mt-1 block text-[10px] font-semibold text-fg-basic-muted">종료된 채팅</span>}
         </div>
 
         <time className="shrink-0 self-start pt-1 text-[11px] text-fg-basic-muted" dateTime={lastMessageTime}>
@@ -72,3 +89,4 @@ function ChatListItem({
 }
 
 export default ChatListItem;
+import { useNavigate } from 'react-router-dom';

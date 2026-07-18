@@ -1,49 +1,33 @@
+import { useEffect, useState } from 'react';
+import { getChatErrorMessage, getChatRooms } from '../../api/chat/chat.js';
 import ChatList from './components/ChatList.jsx';
 
-const mockChatRooms = [
-  {
-    roomId: 101,
-    partnerProfileImageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3sVZbHa4BgJ8n8JUv3LxaF6g0taIK4LLsHgmFItCUYQ&s=10',
-    partnerName: '쿠죠 죠타로',
-    lastMessage: '오라오라오라오라오라오라!',
-    lastMessageTime: '2026-07-17T08:07:19.588Z',
-    unreadCount: 1,
-  },
-  {
-    roomId: 102,
-    partnerProfileImageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTvAF0sO34P4Jn77IONIPlwjEs2bakoAm8dWFMjew9HA&s=10',
-    partnerName: '쟝 피에르 폴나레프',
-    lastMessage: '여동생을 없애줘! 여동생을 땅으로 돌려보내줘!',
-    lastMessageTime: '2026-07-17T07:58:19.588Z',
-    unreadCount: 0,
-  },
-  {
-    roomId: 103,
-    partnerProfileImageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3LPXqHYr3YT40HZvuVcwX2rUlH2R2kl-xAv-De-L_wA&s=10',
-    partnerName: '카쿄인 노리아키',
-    lastMessage: '레로레로레로레로레로레로레로레로',
-    lastMessageTime: '2026-07-16T09:07:19.588Z',
-    unreadCount: 1,
-  },
-  {
-    roomId: 104,
-    partnerProfileImageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpru-3MLU7KEI26_g0aI4UyaGA81AVZ0b30zXOzNdl2g&s=10',
-    partnerName: '무함마드 압둘',
-    lastMessage: '지옥을! 네놈에게!',
-    lastMessageTime: '2026-07-13T10:24:19.588Z',
-    unreadCount: 1,
-  },
-  {
-    roomId: 105,
-    partnerProfileImageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVPhjXopZeJIOizQNN6V1Yre_4OUCfkflq1MVFd71lSw&s=10',
-    partnerName: '죠셉 죠스타',
-    lastMessage: '압둘! 거기는..!',
-    lastMessageTime: '2026-07-10T04:31:19.588Z',
-    unreadCount: 0,
-  },
-];
-
 function Chat() {
+    const [chatRooms, setChatRooms] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadChatRooms() {
+            try {
+                const rooms = await getChatRooms();
+                if (isMounted) setChatRooms(rooms);
+            } catch (error) {
+                console.error('채팅방 목록을 불러오지 못했습니다.', error);
+                if (isMounted) setErrorMessage(getChatErrorMessage(error));
+            } finally {
+                if (isMounted) setIsLoading(false);
+            }
+        }
+
+        loadChatRooms();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
     return (
         <section className="flex min-h-[calc(100dvh-96px)] flex-col px-5 pb-10 pt-5">
             <header className="flex items-center justify-between gap-4">
@@ -53,7 +37,10 @@ function Chat() {
                 </div>
             </header>
             <main className="mt-3">
-                <ChatList chatRooms={mockChatRooms} />
+                {isLoading && <p className="py-20 text-center text-sm text-fg-basic-muted" role="status">채팅방을 불러오는 중이에요...</p>}
+                {!isLoading && errorMessage && <p className="py-20 text-center text-sm text-fg-basic-muted" role="alert">{errorMessage}</p>}
+                {!isLoading && !errorMessage && chatRooms.length === 0 && <p className="py-20 text-center text-sm text-fg-basic-muted">아직 만들어진 채팅방이 없어요.</p>}
+                {!isLoading && !errorMessage && chatRooms.length > 0 && <ChatList chatRooms={chatRooms} />}
             </main>
         </section>
     );

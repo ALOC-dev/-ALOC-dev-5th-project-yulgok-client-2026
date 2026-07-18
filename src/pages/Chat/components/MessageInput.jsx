@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-function MessageInput({ disabled = false, onSend }) {
+const maxMessageLength = 500;
+
+function MessageInput({ disabled = false, disabledReason = '메시지를 보낼 수 없어요.', onSend }) {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (event) => {
@@ -34,7 +36,8 @@ function MessageInput({ disabled = false, onSend }) {
         className="min-w-0 flex-1 rounded-full bg-ui-sub px-4 py-2.5 text-sm text-fg-basic outline-none placeholder:text-[#91a0b6] focus:ring-2 focus:ring-brand-primary/25 disabled:opacity-60"
         value={message}
         disabled={disabled}
-        placeholder={disabled ? '종료된 채팅방입니다.' : '메시지를 입력하세요...'}
+        maxLength={maxMessageLength}
+        placeholder={disabled ? disabledReason : '메시지를 입력하세요...'}
         autoComplete="off"
         onChange={(event) => setMessage(event.target.value)}
       />

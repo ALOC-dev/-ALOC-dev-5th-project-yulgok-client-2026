@@ -1,7 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 
+const fallbackProfileImageUrl = '/favicon.svg';
+
+function isValidProfileImageUrl(profileImageUrl) {
+  if (!profileImageUrl || profileImageUrl === 'string') return false;
+
+  try {
+    const url = new URL(profileImageUrl, window.location.origin);
+    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
+  } catch {
+    return false;
+  }
+}
+
 function ChatRoomHeader({ partnerName, partnerProfileImageUrl, roomStatus }) {
   const navigate = useNavigate();
+  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
+    ? partnerProfileImageUrl
+    : fallbackProfileImageUrl;
 
   return (
     <header className="flex min-h-18 items-center gap-3 border-b border-[#dce5f1] bg-brand-background px-5 py-3">
@@ -18,8 +34,11 @@ function ChatRoomHeader({ partnerName, partnerProfileImageUrl, roomStatus }) {
 
       <img
         className="h-10 w-10 shrink-0 rounded-full bg-ui-sub object-cover"
-        src={partnerProfileImageUrl}
+        src={profileImageUrl}
         alt={`${partnerName} 프로필`}
+        onError={(event) => {
+          event.currentTarget.src = fallbackProfileImageUrl;
+        }}
       />
 
       <div className="flex min-w-0 flex-1 items-center gap-2">

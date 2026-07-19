@@ -33,6 +33,8 @@ function MessageItem({
   const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
     ? partnerProfileImageUrl
     : fallbackProfileImageUrl;
+  const showUnreadMark = isMine && !message.isRead;
+  const showMineMeta = showUnreadMark || showTime;
 
   return (
     <div className={`flex items-end gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}>
@@ -51,10 +53,10 @@ function MessageItem({
         </div>
       )}
 
-      {isMine && showTime && (
+      {showMineMeta && (
         <div className="flex shrink-0 flex-col items-end text-[10px] leading-4 text-fg-basic-muted">
-          {!message.isRead && <span className="font-bold text-[#d39b18]">1</span>}
-          <time dateTime={message.createdAt}>{formatMessageTime(message.createdAt)}</time>
+          {showUnreadMark && <span className="font-bold text-[#d39b18]">1</span>}
+          {showTime && <time dateTime={message.createdAt}>{formatMessageTime(message.createdAt)}</time>}
         </div>
       )}
 

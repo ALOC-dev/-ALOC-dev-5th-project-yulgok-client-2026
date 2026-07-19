@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getChatErrorMessage, getChatRooms } from '../../api/chat/chat.js';
+import { chatNotificationEventName } from './chatNotificationEvents.js';
 import ChatList from './components/ChatList.jsx';
 
 function Chat() {
@@ -7,10 +8,24 @@ function Chat() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const loadChatRooms = useCallback(async ({ showLoading = false } = {}) => {
+    try {
+      if (showLoading) setIsLoading(true);
+      setErrorMessage('');
+      const rooms = await getChatRooms();
+      setChatRooms(rooms);
+    } catch (error) {
+      console.error('채팅방 목록을 불러오지 못했습니다.', error);
+      setErrorMessage(getChatErrorMessage(error, '채팅방 목록을 불러오지 못했어요.'));
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
-    async function loadChatRooms() {
+    async function loadInitialChatRooms() {
       try {
         setIsLoading(true);
         setErrorMessage('');
@@ -32,12 +47,23 @@ function Chat() {
       }
     }
 
-    loadChatRooms();
+    loadInitialChatRooms();
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    function handleChatNotification() {
+      loadChatRooms();
+    }
+
+    window.addEventListener(chatNotificationEventName, handleChatNotification);
+    return () => {
+      window.removeEventListener(chatNotificationEventName, handleChatNotification);
+    };
+  }, [loadChatRooms]);
 
   return (
     <section className="flex min-h-[calc(100dvh-96px)] flex-col px-5 pb-10 pt-5">

@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { getCurrentUserId } from '../../api/auth/authStatus.js';
 import {
   getChatErrorMessage,
   getChatMessages,
   getChatRooms,
   markChatMessagesAsRead,
 } from '../../api/chat/chat.js';
+import {
+  parseStompBody,
+  publishChatMessage,
+} from '../../api/chat/chatSocket.js';
+import { useChatSocket } from './ChatSocketContext.jsx';
 import ChatRoomHeader from './components/ChatRoomHeader.jsx';
 import MessageInput from './components/MessageInput.jsx';
 import MessageList from './components/MessageList.jsx';
@@ -18,6 +22,21 @@ function sortMessages(messages) {
   });
 }
 
+function areMessagesEqual(messageA, messageB) {
+  return (
+    messageA?.messageId === messageB?.messageId &&
+    messageA?.senderId === messageB?.senderId &&
+    messageA?.message === messageB?.message &&
+    messageA?.createdAt === messageB?.createdAt &&
+    Boolean(messageA?.isRead) === Boolean(messageB?.isRead)
+  );
+}
+
+function areMessageListsEqual(messagesA, messagesB) {
+  return messagesA.length === messagesB.length &&
+    messagesA.every((message, index) => areMessagesEqual(message, messagesB[index]));
+}
+
 function mergeMessages(currentMessages, incomingMessages) {
   const messageMap = new Map(
     [...currentMessages, ...incomingMessages]
@@ -25,7 +44,23 @@ function mergeMessages(currentMessages, incomingMessages) {
       .map((message) => [message.messageId, message]),
   );
 
-  return sortMessages([...messageMap.values()]);
+  const mergedMessages = sortMessages([...messageMap.values()]);
+  return areMessageListsEqual(currentMessages, mergedMessages) ? currentMessages : mergedMessages;
+}
+
+function markIncomingMessagesAsRead(messages, currentUserId) {
+  const updatedMessages = messages.map((message) => {
+    if (String(message.senderId) === String(currentUserId) || message.isRead) {
+      return message;
+    }
+
+    return {
+      ...message,
+      isRead: true,
+    };
+  });
+
+  return areMessageListsEqual(messages, updatedMessages) ? messages : updatedMessages;
 }
 
 function formatMatchedDate(value) {
@@ -39,29 +74,33 @@ function ChatRoom() {
   const location = useLocation();
   const roomId = Number(roomIdParam);
   const passedRoom = location.state?.room?.roomId === roomId ? location.state.room : null;
+  const { client, currentUserId, isConnected, refreshTotalUnreadCount } = useChatSocket();
 
   const [room, setRoom] = useState(passedRoom);
   const [messages, setMessages] = useState([]);
-  const [currentUserId, setCurrentUserId] = useState(null);
   const [hasNext, setHasNext] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPrevious, setIsLoadingPrevious] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [sendNotice, setSendNotice] = useState('');
-  const [socketStatus, setSocketStatus] = useState('idle');
 
-  const stompClientRef = useRef(null);
-  const socketApiRef = useRef(null);
   const readTimerRef = useRef(null);
 
   const markRoomAsReadSoon = useCallback(() => {
+    if (!currentUserId) return;
+
     window.clearTimeout(readTimerRef.current);
     readTimerRef.current = window.setTimeout(() => {
-      markChatMessagesAsRead(roomId).catch((error) => {
-        console.info('메시지 읽음 처리를 완료하지 못했습니다.', error);
-      });
+      markChatMessagesAsRead(roomId)
+        .then(() => {
+          setMessages((currentMessages) => markIncomingMessagesAsRead(currentMessages, currentUserId));
+          return refreshTotalUnreadCount();
+        })
+        .catch((error) => {
+          console.info('메시지 읽음 처리를 완료하지 못했습니다.', error);
+        });
     }, 500);
-  }, [roomId]);
+  }, [currentUserId, refreshTotalUnreadCount, roomId]);
 
   const syncLatestMessages = useCallback(async () => {
     const result = await getChatMessages(roomId);
@@ -69,7 +108,7 @@ function ChatRoom() {
     setMessages((currentMessages) => mergeMessages(currentMessages, result.messages));
     setHasNext((currentHasNext) => currentHasNext || result.hasNext);
 
-    if (result.messages.some((message) => message.senderId !== currentUserId)) {
+    if (result.messages.some((message) => String(message.senderId) !== String(currentUserId) && !message.isRead)) {
       markRoomAsReadSoon();
     }
   }, [currentUserId, markRoomAsReadSoon, roomId]);
@@ -92,10 +131,9 @@ function ChatRoom() {
           ? Promise.resolve(passedRoom)
           : getChatRooms().then((rooms) => rooms.find((item) => item.roomId === roomId) ?? null);
 
-        const [loadedRoom, messageResult, userId] = await Promise.all([
+        const [loadedRoom, messageResult] = await Promise.all([
           roomRequest,
           getChatMessages(roomId),
-          getCurrentUserId(),
         ]);
 
         if (!isMounted) return;
@@ -104,8 +142,6 @@ function ChatRoom() {
         setRoom(loadedRoom);
         setMessages(sortMessages(messageResult.messages));
         setHasNext(messageResult.hasNext);
-        setCurrentUserId(userId);
-        markRoomAsReadSoon();
       } catch (error) {
         console.error('채팅방을 불러오지 못했습니다.', error);
         if (isMounted) {
@@ -124,73 +160,52 @@ function ChatRoom() {
     return () => {
       isMounted = false;
     };
-  }, [markRoomAsReadSoon, passedRoom, roomId]);
+  }, [passedRoom, roomId]);
 
   useEffect(() => {
-    if (!room || !currentUserId) return undefined;
+    if (!room || !currentUserId) return;
+    markRoomAsReadSoon();
+  }, [currentUserId, markRoomAsReadSoon, room]);
 
-    let isActive = true;
-    let roomSubscription = null;
-    const connectingTimer = window.setTimeout(() => {
-      setSocketStatus('connecting');
+  useEffect(() => {
+    if (!client || !isConnected || !room || !currentUserId) return undefined;
+
+    const syncTimer = window.setTimeout(() => {
+      syncLatestMessages().catch((error) => {
+        console.info('재연결 후 최신 메시지 동기화를 완료하지 못했습니다.', error);
+      });
     }, 0);
 
-    async function connectChatSocket() {
-      try {
-        const socketApi = await import('../../api/chat/chatSocket.js');
-        if (!isActive) return;
+    const roomSubscription = client.subscribe(`/topic/room/${roomId}`, (message) => {
+      const payload = parseStompBody(message);
+      if (!payload) return;
 
-        socketApiRef.current = socketApi;
+      setMessages((currentMessages) => mergeMessages(currentMessages, [payload]));
 
-        const client = await socketApi.createChatStompClient({
-          onConnect: () => {
-            setSocketStatus('connected');
-            setSendNotice('');
-            syncLatestMessages().catch((error) => {
-              console.info('재연결 후 최신 메시지 동기화를 완료하지 못했습니다.', error);
-            });
-
-            roomSubscription = client.subscribe(`/topic/room/${roomId}`, (message) => {
-              const payload = socketApi.parseStompBody(message);
-              if (!payload) return;
-
-              setMessages((currentMessages) => mergeMessages(currentMessages, [payload]));
-
-              if (payload.senderId !== currentUserId) {
-                markRoomAsReadSoon();
-              }
-            });
-          },
-          onError: (error) => {
-            console.error('채팅 WebSocket 오류가 발생했습니다.', error);
-            setSocketStatus('error');
-            setSendNotice('실시간 채팅 연결에 문제가 있어요.');
-          },
-          onDisconnect: () => {
-            setSocketStatus('disconnected');
-          },
-        });
-
-        stompClientRef.current = client;
-        client.activate();
-      } catch (error) {
-        console.error('채팅 WebSocket 모듈을 불러오지 못했습니다.', error);
-        setSocketStatus('error');
-        setSendNotice('실시간 채팅 연결을 시작하지 못했어요.');
+      if (payload.senderId !== currentUserId) {
+        markRoomAsReadSoon();
       }
-    }
-
-    connectChatSocket();
+    });
 
     return () => {
-      isActive = false;
-      window.clearTimeout(connectingTimer);
-      roomSubscription?.unsubscribe();
-      const client = stompClientRef.current;
-      stompClientRef.current = null;
-      client?.deactivate();
+      window.clearTimeout(syncTimer);
+      roomSubscription.unsubscribe();
     };
-  }, [currentUserId, markRoomAsReadSoon, room, roomId, syncLatestMessages]);
+  }, [client, currentUserId, isConnected, markRoomAsReadSoon, room, roomId, syncLatestMessages]);
+
+  useEffect(() => {
+    if (!isConnected || !room || !currentUserId) return undefined;
+
+    const readStatusSyncTimer = window.setInterval(() => {
+      syncLatestMessages().catch((error) => {
+        console.info('메시지 읽음 상태를 동기화하지 못했습니다.', error);
+      });
+    }, 3000);
+
+    return () => {
+      window.clearInterval(readStatusSyncTimer);
+    };
+  }, [currentUserId, isConnected, room, syncLatestMessages]);
 
   useEffect(() => {
     return () => {
@@ -217,22 +232,19 @@ function ChatRoom() {
   }, [hasNext, isLoadingPrevious, messages, roomId]);
 
   const handleSend = useCallback((message) => {
-    const client = stompClientRef.current;
-    const socketApi = socketApiRef.current;
-
-    if (!client?.connected || !socketApi) {
+    if (!client?.connected) {
       setSendNotice('실시간 채팅 서버에 연결 중이에요. 잠시 후 다시 보내주세요.');
       return;
     }
 
     try {
-      socketApi.publishChatMessage(client, { roomId, message });
+      publishChatMessage(client, { roomId, message });
       setSendNotice('');
     } catch (error) {
       console.error('메시지를 전송하지 못했습니다.', error);
       setSendNotice('메시지를 전송하지 못했어요.');
     }
-  }, [roomId]);
+  }, [client, roomId]);
 
   const matchInformation = useMemo(() => {
     if (!room?.matchedAt) return '';
@@ -240,8 +252,7 @@ function ChatRoom() {
     return `${formatMatchedDate(room.matchedAt)}에 서로 매칭되었어요${percentage}`;
   }, [room]);
 
-  const isSocketConnecting = socketStatus === 'idle' || socketStatus === 'connecting';
-  const isInputDisabled = room?.status === 'CLOSED' || isSocketConnecting;
+  const isInputDisabled = room?.status === 'CLOSED' || !isConnected;
 
   if (isLoading) {
     return (

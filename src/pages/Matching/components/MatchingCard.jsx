@@ -156,7 +156,7 @@ function MatchingCard({ person, isFront = false }) {
 
   return (
     <article className="w-full min-w-0 overflow-hidden rounded-[clamp(1.375rem,4vw,2rem)] bg-white shadow-[0_20px_45px_rgba(36,69,119,0.16)]">
-      <div className="relative h-[clamp(9rem,48vw,15rem)] overflow-hidden">
+      <div className="relative h-[clamp(9.5rem,calc(28vh+6vw),22rem)] overflow-hidden">
         <ProfilePlaceholder name={person.name} />
 
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
@@ -172,11 +172,11 @@ function MatchingCard({ person, isFront = false }) {
         </div>
       </div>
 
-      <div className="px-[clamp(0.875rem,4vw,1.5rem)] pb-[clamp(0.875rem,3vw,1.25rem)] pt-[clamp(0.875rem,3vw,1.25rem)]">
+      <div className="px-[clamp(1rem,4.5vw,1.75rem)] pb-[clamp(1rem,3.5vw,1.5rem)] pt-[clamp(1rem,3.5vw,1.5rem)]">
         <div className="flex flex-wrap items-end justify-between gap-x-[clamp(0.5rem,3vw,0.75rem)] gap-y-2">
           <div className="min-w-0 flex-1 basis-[9.5rem]">
             <div className="flex items-baseline gap-1.5">
-              <h2 className="truncate text-[clamp(1.0625rem,3vw,1.5rem)] font-extrabold tracking-[-0.02em] text-fg-primary">
+              <h2 className="truncate text-[clamp(1.125rem,3.2vw,1.625rem)] font-extrabold tracking-[-0.02em] text-fg-primary">
                 {person.name || '이름 미등록'}
               </h2>
               {person.age != null && (

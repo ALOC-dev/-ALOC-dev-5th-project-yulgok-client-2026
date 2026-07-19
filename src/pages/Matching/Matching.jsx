@@ -95,10 +95,10 @@ function Matching() {
         <ExeMatchBtn onExecute={handleExecuteMatching} isLoading={isExecuting} />
       </header>
 
-      <div className="flex min-w-0 flex-1 items-start justify-center pb-5 pt-[clamp(0.75rem,5vw,1.25rem)]">
+      <div className="flex min-w-0 flex-1 items-center justify-center pb-3 pt-[clamp(0.5rem,3vw,1rem)]">
         {isLoading && (
           <div
-            className="mt-28 flex flex-col items-center gap-3 text-sm font-semibold text-fg-basic-muted"
+            className="flex flex-col items-center gap-3 text-sm font-semibold text-fg-basic-muted"
             role="status"
           >
             <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#cad8ec] border-t-brand-primary" />
@@ -107,7 +107,7 @@ function Matching() {
         )}
 
         {!isLoading && errorMessage && (
-          <div className="mt-24 w-full max-w-[320px] rounded-[clamp(1.25rem,6vw,1.5rem)] bg-white px-[clamp(1rem,6vw,1.5rem)] py-[clamp(1.5rem,7vw,2rem)] text-center shadow-[0_14px_36px_rgba(38,73,126,0.1)]">
+          <div className="w-full max-w-[320px] rounded-[clamp(1.25rem,6vw,1.5rem)] bg-white px-[clamp(1rem,6vw,1.5rem)] py-[clamp(1.5rem,7vw,2rem)] text-center shadow-[0_14px_36px_rgba(38,73,126,0.1)]">
             <p className="text-sm font-semibold leading-6 text-fg-basic-muted" role="alert">
               {errorMessage}
             </p>
@@ -116,7 +116,7 @@ function Matching() {
         )}
 
         {!isLoading && !errorMessage && people.length === 0 && (
-          <div className="mt-24 w-full max-w-[320px] rounded-[clamp(1.25rem,6vw,1.5rem)] bg-white px-[clamp(1rem,6vw,1.5rem)] py-[clamp(1.5rem,7vw,2rem)] text-center shadow-[0_14px_36px_rgba(38,73,126,0.1)]">
+          <div className="w-full max-w-[320px] rounded-[clamp(1.25rem,6vw,1.5rem)] bg-white px-[clamp(1rem,6vw,1.5rem)] py-[clamp(1.5rem,7vw,2rem)] text-center shadow-[0_14px_36px_rgba(38,73,126,0.1)]">
             <p className="text-sm font-bold text-fg-primary">아직 오늘의 추천이 없어요</p>
             <p className="mt-2 text-xs leading-5 text-fg-basic-muted">
               오른쪽 위 매칭 버튼을 눌러 잘 맞는 룸매를 찾아보세요.

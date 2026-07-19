@@ -134,7 +134,7 @@ function MatchingCardStack({ people, onStatusRefresh }) {
   };
 
   return (
-    <div className="w-[85%] min-w-0 max-w-[21rem]">
+    <div className="w-[92%] min-w-0 max-w-[30rem]">
       <div
         className="relative touch-pan-y select-none pt-3"
         onPointerDown={handlePointerDown}
@@ -146,8 +146,8 @@ function MatchingCardStack({ people, onStatusRefresh }) {
           const isFront = stackIndex === 0;
           const backTransforms = [
             '',
-            'translate(-7%, 11px) rotate(-4deg) scale(0.985)',
-            'translate(7%, 17px) rotate(4deg) scale(0.965)',
+            'translate(-4%, 11px) rotate(-4deg) scale(0.985)',
+            'translate(4%, 17px) rotate(4deg) scale(0.965)',
           ];
           const frontX = exitDirection ? exitDirection * 460 : dragX;
           const transform = isFront

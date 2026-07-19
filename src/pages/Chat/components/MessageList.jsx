@@ -38,7 +38,7 @@ function MessageList({
   const previousMessageCountRef = useRef(0);
 
   useEffect(() => {
-    if (previousMessageCountRef.current === 0 && messages.length > 0) {
+    if (messages.length > previousMessageCountRef.current) {
       bottomRef.current?.scrollIntoView({ block: 'end' });
     }
     previousMessageCountRef.current = messages.length;

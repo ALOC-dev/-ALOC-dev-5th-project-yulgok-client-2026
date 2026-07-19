@@ -1,4 +1,21 @@
+import { useNavigate } from 'react-router-dom';
+
+const fallbackProfileImageUrl = '/favicon.svg';
+
+function isValidProfileImageUrl(profileImageUrl) {
+  if (!profileImageUrl || profileImageUrl === 'string') return false;
+
+  try {
+    const url = new URL(profileImageUrl, window.location.origin);
+    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
+  } catch {
+    return false;
+  }
+}
+
 function formatLastMessageTime(lastMessageTime) {
+  if (!lastMessageTime) return '';
+
   const messageDate = new Date(lastMessageTime);
 
   if (Number.isNaN(messageDate.getTime())) return '';
@@ -36,13 +53,18 @@ function ChatListItem({
   status,
 }) {
   const navigate = useNavigate();
+  const normalizedUnreadCount = Number(unreadCount) || 0;
+  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
+    ? partnerProfileImageUrl
+    : fallbackProfileImageUrl;
+  const messagePreview = lastMessage || '아직 메시지가 없어요.';
 
   return (
     <li data-room-id={roomId}>
       <button
         type="button"
         className="flex w-full items-center gap-3 border-b border-[#dce5f1] px-2 py-4 text-left transition-colors hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-primary"
-        aria-label={`${partnerName}님과의 채팅방${unreadCount > 0 ? `, 읽지 않은 메시지 ${unreadCount}개` : ''}`}
+        aria-label={`${partnerName}님과의 채팅방${normalizedUnreadCount > 0 ? `, 읽지 않은 메시지 ${normalizedUnreadCount}개` : ''}`}
         onClick={() => navigate(`/chat/${roomId}`, {
           state: {
             room: {
@@ -51,7 +73,7 @@ function ChatListItem({
               partnerName,
               lastMessage,
               lastMessageTime,
-              unreadCount,
+              unreadCount: normalizedUnreadCount,
               status,
             },
           },
@@ -60,12 +82,15 @@ function ChatListItem({
         <div className="relative shrink-0">
           <img
             className="h-13 w-13 rounded-full bg-ui-sub object-cover"
-            src={partnerProfileImageUrl}
+            src={profileImageUrl}
             alt={`${partnerName} 프로필`}
+            onError={(event) => {
+              event.currentTarget.src = fallbackProfileImageUrl;
+            }}
           />
-          {unreadCount > 0 && (
+          {normalizedUnreadCount > 0 && (
             <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#1743a3] px-1 text-[11px] font-extrabold leading-none text-white">
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {normalizedUnreadCount > 99 ? '99+' : normalizedUnreadCount}
             </span>
           )}
         </div>
@@ -73,14 +98,16 @@ function ChatListItem({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-extrabold text-fg-primary">{partnerName}</p>
           <p
-            className={`mt-0.5 truncate text-xs ${unreadCount > 0 ? 'font-semibold text-fg-basic' : 'text-fg-basic-muted'}`}
+            className={`mt-0.5 truncate text-xs ${normalizedUnreadCount > 0 ? 'font-semibold text-fg-basic' : 'text-fg-basic-muted'}`}
           >
-            {lastMessage}
+            {messagePreview}
           </p>
-          {status === 'CLOSED' && <span className="mt-1 block text-[10px] font-semibold text-fg-basic-muted">종료된 채팅</span>}
+          {status === 'CLOSED' && (
+            <span className="mt-1 block text-[10px] font-semibold text-fg-basic-muted">종료된 채팅</span>
+          )}
         </div>
 
-        <time className="shrink-0 self-start pt-1 text-[11px] text-fg-basic-muted" dateTime={lastMessageTime}>
+        <time className="shrink-0 self-start pt-1 text-[11px] text-fg-basic-muted" dateTime={lastMessageTime || undefined}>
           {formatLastMessageTime(lastMessageTime)}
         </time>
       </button>
@@ -89,4 +116,3 @@ function ChatListItem({
 }
 
 export default ChatListItem;
-import { useNavigate } from 'react-router-dom';

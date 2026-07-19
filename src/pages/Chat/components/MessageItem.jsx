@@ -1,3 +1,16 @@
+const fallbackProfileImageUrl = '/favicon.svg';
+
+function isValidProfileImageUrl(profileImageUrl) {
+  if (!profileImageUrl || profileImageUrl === 'string') return false;
+
+  try {
+    const url = new URL(profileImageUrl, window.location.origin);
+    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
+  } catch {
+    return false;
+  }
+}
+
 function formatMessageTime(createdAt) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return '';
@@ -17,6 +30,10 @@ function MessageItem({
   partnerName,
   partnerProfileImageUrl,
 }) {
+  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
+    ? partnerProfileImageUrl
+    : fallbackProfileImageUrl;
+
   return (
     <div className={`flex items-end gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}>
       {!isMine && (
@@ -24,8 +41,11 @@ function MessageItem({
           {showProfile && (
             <img
               className="h-8 w-8 rounded-full bg-ui-sub object-cover"
-              src={partnerProfileImageUrl}
+              src={profileImageUrl}
               alt={`${partnerName} 프로필`}
+              onError={(event) => {
+                event.currentTarget.src = fallbackProfileImageUrl;
+              }}
             />
           )}
         </div>

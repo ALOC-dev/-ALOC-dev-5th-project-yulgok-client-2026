@@ -1,22 +1,34 @@
 import {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressBar from '../../components/ProgressBar';
-import Slider from './components/Slider';
 import RadioBtnGroup from '../../components/RadioBtnGroup';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
 import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyLiving() {
     const navigate = useNavigate();
-    const [smokingStatus, setSmokingStatus] = useState(() => loadSurveyDraft().smokingStatus ?? 0);
-    const [eatingInRoom, setEatingInRoom] = useState(() => loadSurveyDraft().eatingInRoom ?? 1);
-    const [temperaturePreference, setTemperaturePreference] = useState(() => loadSurveyDraft().temperaturePreference ?? 1);
-    const [speakerStyle, setSpeakerStyle] = useState(() => loadSurveyDraft().speakerStyle ?? 1);
-    const [callInRoom, setCallInRoom] = useState(() => loadSurveyDraft().callInRoom ?? 1);
+    const [smokingStatus, setSmokingStatus] = useState(() => loadSurveyDraft().smokingStatus ?? null);
+    const [eatingInRoom, setEatingInRoom] = useState(() => loadSurveyDraft().eatingInRoom ?? null);
+    const [temperaturePreference, setTemperaturePreference] = useState(() => loadSurveyDraft().temperaturePreference ?? null);
+    const [speakerStyle, setSpeakerStyle] = useState(() => loadSurveyDraft().speakerStyle ?? null);
+    const [callInRoom, setCallInRoom] = useState(() => loadSurveyDraft().callInRoom ?? null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         saveSurveyDraft({ smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom });
     }, [smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom]);
+
+    function handleNext() {
+        const answers = [smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom];
+        if (!answers.every(Number.isInteger)) {
+            setErrorMessage('생활 설문의 모든 항목을 선택해주세요.');
+            return;
+        }
+
+        setErrorMessage('');
+        saveSurveyDraft({ smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom });
+        navigate('/surveys/introduce');
+    }
 
     return(
         <main className="relative min-h-dvh p-5 flex flex-col bg-brand-background pb-[calc(16px+env(safe-area-inset-bottom))]">
@@ -41,6 +53,8 @@ function SurveyLiving() {
                         {item: "비흡연자", value:0}
                     ]}
                     onChange={setSmokingStatus}
+                    value={smokingStatus}
+                    required
                     className="flex-1"
                     layout=""
                     labelStyle="block text-sm font-bold text-fg-basic"
@@ -54,6 +68,8 @@ function SurveyLiving() {
                         {item: "안함", value:3},
                     ]}
                     onChange={setEatingInRoom}
+                    value={eatingInRoom}
+                    required
                     className="flex-1"
                     layout=""
                     labelStyle="block text-sm font-bold text-fg-basic"
@@ -67,6 +83,8 @@ function SurveyLiving() {
                         {item: "따뜻하게", value:3},
                     ]}
                     onChange={setTemperaturePreference}
+                    value={temperaturePreference}
+                    required
                     className="flex-1"
                     layout=""
                     labelStyle="block text-sm font-bold text-fg-basic"
@@ -80,6 +98,8 @@ function SurveyLiving() {
                         {item: "둘 다", value:3},
                     ]}
                     onChange={setSpeakerStyle}
+                    value={speakerStyle}
+                    required
                     className="flex-1"
                     layout=""
                     labelStyle="block text-sm font-bold text-fg-basic"
@@ -93,14 +113,17 @@ function SurveyLiving() {
                         {item: "나가서", value:3},
                     ]}
                     onChange={setCallInRoom}
+                    value={callInRoom}
+                    required
                     className="flex-1"
                     layout=""
                     labelStyle="block text-sm font-sans font-bold text-fg-basic"
                 />
             </section>
+            {errorMessage && <p className="mb-3 text-xs font-bold text-[#c04a67]" role="alert">{errorMessage}</p>}
             <MoveBtnGroup
                 prev='/surveys/clean'
-                onNext={() => navigate('/surveys/introduce')}
+                onNext={handleNext}
             />
         </main>
     );

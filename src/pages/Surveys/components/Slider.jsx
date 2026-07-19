@@ -7,10 +7,13 @@ function Slider({
     leftDescription,
     rightDescription,
     onChange,
+    required = false,
 }) {
     const sliderId = useId();
     const lastValue = Math.max(1, Math.floor(Number(range) || 1));
     const values = Array.from({ length: lastValue }, (_, index) => index + 1);
+    const hasValue = Number.isInteger(value) && value >= 1 && value <= lastValue;
+    const inputValue = hasValue ? value : 1;
 
     const handleChange = (event) => {
         const nextValue = Number(event.target.value);
@@ -26,6 +29,7 @@ function Slider({
                     className="block text-sm font-bold text-fg-basic"
                 >
                     {label}
+                    {required && <span className="ml-1 text-[#c04a67]" aria-hidden="true">*</span>}
                 </label>
             )}
 
@@ -49,10 +53,11 @@ function Slider({
                         min="1"
                         max={lastValue}
                         step="1"
-                        value={value}
+                        value={inputValue}
                         onChange={handleChange}
                         aria-label={label || "범위 선택"}
-                        className="absolute inset-0 z-10 m-0 h-5 w-full cursor-pointer appearance-none bg-transparent outline-none [&::-moz-range-progress]:h-1 [&::-moz-range-progress]:bg-transparent [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[#0B43A7] [&::-moz-range-thumb]:shadow-[0_2px_8px_rgba(11,67,167,0.35)] [&::-moz-range-track]:h-1 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-[-8px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#0B43A7] [&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(11,67,167,0.35)] active:[&::-moz-range-thumb]:cursor-grabbing active:[&::-webkit-slider-thumb]:cursor-grabbing focus-visible:[&::-moz-range-thumb]:ring-4 focus-visible:[&::-moz-range-thumb]:ring-[#0B43A7]/20 focus-visible:[&::-webkit-slider-thumb]:ring-4 focus-visible:[&::-webkit-slider-thumb]:ring-[#0B43A7]/20"
+                        aria-required={required}
+                        className={`absolute inset-0 z-10 m-0 h-5 w-full cursor-pointer appearance-none bg-transparent outline-none [&::-moz-range-progress]:h-1 [&::-moz-range-progress]:bg-transparent [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[#0B43A7] [&::-moz-range-thumb]:shadow-[0_2px_8px_rgba(11,67,167,0.35)] [&::-moz-range-track]:h-1 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-[-8px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#0B43A7] [&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(11,67,167,0.35)] active:[&::-moz-range-thumb]:cursor-grabbing active:[&::-webkit-slider-thumb]:cursor-grabbing focus-visible:[&::-moz-range-thumb]:ring-4 focus-visible:[&::-moz-range-thumb]:ring-[#0B43A7]/20 focus-visible:[&::-webkit-slider-thumb]:ring-4 focus-visible:[&::-webkit-slider-thumb]:ring-[#0B43A7]/20 ${hasValue ? '' : 'opacity-45'}`}
                     />
                 </div>
 
@@ -66,7 +71,7 @@ function Slider({
                                     : `${((item - 1) / (lastValue - 1)) * 100}%`,
                             }}
                             className={`absolute top-0 -translate-x-1/2 text-center ${
-                                item === value
+                                item === value && hasValue
                                     ? "font-bold text-[#153D7A]"
                                     : "font-medium"
                             }`}

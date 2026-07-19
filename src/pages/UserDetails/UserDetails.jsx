@@ -78,6 +78,7 @@ function UserDetails() {
                             {item: "남", value:"MALE"},
                             {item: "여", value:"FEMALE"}
                         ]}
+                        value={gender}
                         onChange={setGender}
                         className="flex-1"
                         labelStyle='font-heading font-semibold text-xs text-fg-basic-muted'

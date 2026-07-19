@@ -7,6 +7,7 @@ function MultipleBtnGroup({
     layout = "",
     labelStyle = "",
     maxSelections = 3,
+    required = false,
 }) {
     const selectedValues = Array.isArray(value) ? value : [];
 
@@ -26,8 +27,9 @@ function MultipleBtnGroup({
 
     return(
         <div className={`flex min-w-0 flex-col ${className}`}>
-            <label className="block text-sm font-sans font-bold text-fg-basic">
+            <label className={labelStyle || "block text-sm font-sans font-bold text-fg-basic"}>
                 {label}
+                {required && <span className="ml-1 text-[#c04a67]" aria-hidden="true">*</span>}
             </label>
             <div className={`mt-2 w-full gap-2 ${layout || "flex flex-wrap"}`}>
                 {items.map(({item, value: itemValue}) => {

@@ -1,12 +1,9 @@
-import { useState } from 'react';
-
-function RadioBtnGroup({items = [], label, onChange, className = "", layout="", labelStyle=""}) {
-    const [selectedValue, setSelectedValue] = useState(null);
-
+function RadioBtnGroup({items = [], label, value: selectedValue, onChange, className = "", layout="", labelStyle="", required = false}) {
     return(
         <div className={`flex min-w-0 flex-col ${className}`}>
             <label className={`${labelStyle}`}>
                 {label}
+                {required && <span className="ml-1 text-[#c04a67]" aria-hidden="true">*</span>}
             </label>
             <div className={`mt-2 w-full gap-2 ${layout || "flex"}`}>
                 {items.map(({item, value}) => {
@@ -16,8 +13,8 @@ function RadioBtnGroup({items = [], label, onChange, className = "", layout="", 
                         <button
                             key={value}
                             type="button"
+                            aria-pressed={isSelected}
                             onClick={() => {
-                                setSelectedValue(value);
                                 onChange?.(value);
                             }}
                             className={[

@@ -4,22 +4,35 @@ import TextArea from './components/TextArea.jsx'
 import ProgressBar from '../../components/ProgressBar.jsx'
 import MoveBtnGroup from '../../components/MoveBtnGroup.jsx'
 import MultipleBtnGroup from './components/MultipleBtnGroup.jsx';
-import { clearSurveyDraft, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
-import { postSurveys } from '../../api/surveys/surveys.js';
+import {
+    buildSurveyRequestBody,
+    clearSurveyDraft,
+    getFirstIncompleteSurveyPath,
+    loadSurveyDraft,
+    saveSurveyDraft,
+} from './surveyDraft.js';
+import { getSurveyErrorMessage, postSurveys } from '../../api/surveys/surveys.js';
 
 function SurveyIntroduce() {
     const navigate = useNavigate();
     const [introduce, setIntroduce] = useState(() => loadSurveyDraft().introduce ?? '');
     const [visibleProfileFields, setVisibleProfileFields] = useState(() => loadSurveyDraft().visibleProfileFields ?? []);
     const [errorMessage, setErrorMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         saveSurveyDraft({ introduce, visibleProfileFields });
     }, [introduce, visibleProfileFields]);
 
     async function handleNext() {
+        if (isSubmitting) return;
+
         if (!introduce.trim()) {
             setErrorMessage('자기소개를 입력해주세요.');
+            return;
+        }
+        if (introduce.trim().length > 500) {
+            setErrorMessage('자기소개는 500자 이하로 입력해주세요.');
             return;
         }
         if (visibleProfileFields.length < 1) {
@@ -27,33 +40,28 @@ function SurveyIntroduce() {
             return;
         }
 
-        const draft = loadSurveyDraft();
-        const requestBody = {
-            smokingStatus: draft.smokingStatus,
-            introduce,
-            answers: {
-                bedtime: draft.bedtime,
-                snoring: draft.snoring,
-                sleepTalking: draft.sleepTalking,
-                organizingStyle: draft.organizingStyle,
-                eatingInRoom: draft.eatingInRoom,
-                temperaturePreference: draft.temperaturePreference,
-                showerFrequency: draft.showerFrequency,
-                speakerStyle: draft.speakerStyle,
-                callInRoom: draft.callInRoom,
-            },
-            visibleProfileFields,
-        };
+        const draft = saveSurveyDraft({ introduce: introduce.trim(), visibleProfileFields });
+        const incompletePagePath = getFirstIncompleteSurveyPath(draft);
+
+        if (incompletePagePath) {
+            setErrorMessage('입력하지 않은 설문 항목이 있어요. 해당 페이지로 이동합니다.');
+            navigate(incompletePagePath);
+            return;
+        }
+
+        const requestBody = buildSurveyRequestBody(draft);
 
         try {
+            setIsSubmitting(true);
             setErrorMessage('');
-            const responseBody = await postSurveys(requestBody);
-            console.log(responseBody.message);
+            await postSurveys(requestBody);
             clearSurveyDraft();
             navigate('/certification');
         } catch (error) {
-            console.error(error);
-            setErrorMessage('제출에 실패했어요. 잠시 후 다시 시도해주세요.');
+            console.error('설문 제출에 실패했습니다.', error);
+            setErrorMessage(getSurveyErrorMessage(error));
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -77,6 +85,8 @@ function SurveyIntroduce() {
                     placeholder="본인을 소개해주세요!"
                     value={introduce}
                     onChange={setIntroduce}
+                    required
+                    maxLength={500}
                 />
                 <MultipleBtnGroup
                     label="중요하게 생각하는 항목"
@@ -93,6 +103,7 @@ function SurveyIntroduce() {
                         {item: "방안 통화 여부", value:"CALL_IN_ROOM"},
                     ]}
                     onChange={setVisibleProfileFields}
+                    required
                 />
             </section>
             {errorMessage && (
@@ -103,6 +114,8 @@ function SurveyIntroduce() {
             <MoveBtnGroup
                 prev='/surveys/living'
                 onNext={handleNext}
+                nextDisabled={isSubmitting}
+                nextLabel={isSubmitting ? '제출 중...' : '다음'}
             />
         </main>
     );

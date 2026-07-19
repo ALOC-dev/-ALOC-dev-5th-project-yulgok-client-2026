@@ -7,13 +7,25 @@ import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveySleep() {
     const navigate = useNavigate();
-    const [bedtime, setBedtime] = useState(() => loadSurveyDraft().bedtime ?? 1);
-    const [snoring, setSnoring] = useState(() => loadSurveyDraft().snoring ?? 1);
-    const [sleepTalking, setSleepTalking] = useState(() => loadSurveyDraft().sleepTalking ?? 1);
+    const [bedtime, setBedtime] = useState(() => loadSurveyDraft().bedtime ?? null);
+    const [snoring, setSnoring] = useState(() => loadSurveyDraft().snoring ?? null);
+    const [sleepTalking, setSleepTalking] = useState(() => loadSurveyDraft().sleepTalking ?? null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         saveSurveyDraft({ bedtime, snoring, sleepTalking });
     }, [bedtime, snoring, sleepTalking]);
+
+    function handleNext() {
+        if (![bedtime, snoring, sleepTalking].every(Number.isInteger)) {
+            setErrorMessage('수면 설문의 모든 항목을 선택해주세요.');
+            return;
+        }
+
+        setErrorMessage('');
+        saveSurveyDraft({ bedtime, snoring, sleepTalking });
+        navigate('/surveys/clean');
+    }
 
     return(
         <main className="relative min-h-dvh p-5 flex flex-col bg-brand-background pb-[calc(16px+env(safe-area-inset-bottom))]">
@@ -37,6 +49,7 @@ function SurveySleep() {
                     leftDescription="10시 이전"
                     rightDescription="새벽 1시 이후"
                     onChange={setBedtime}
+                    required
                 />
                 <Slider
                     range={5}
@@ -45,6 +58,7 @@ function SurveySleep() {
                     leftDescription="없음"
                     rightDescription="심함"
                     onChange={setSnoring}
+                    required
                 />
                 <Slider
                     range={5}
@@ -53,11 +67,13 @@ function SurveySleep() {
                     leftDescription="없음"
                     rightDescription="심함"
                     onChange={setSleepTalking}
+                    required
                 />
             </section>
+            {errorMessage && <p className="mb-3 text-xs font-bold text-[#c04a67]" role="alert">{errorMessage}</p>}
             <MoveBtnGroup
                 prev='/user/details'
-                onNext={() => navigate('/surveys/clean')}
+                onNext={handleNext}
             />
         </main>
     );

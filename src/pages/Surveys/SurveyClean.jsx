@@ -8,12 +8,24 @@ import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyClean() {
     const navigate = useNavigate();
-    const [organizingStyle, setOrganizingStyle] = useState(() => loadSurveyDraft().organizingStyle ?? 1);
-    const [showerFrequency, setShowerFrequency] = useState(() => loadSurveyDraft().showerFrequency ?? 1);
+    const [organizingStyle, setOrganizingStyle] = useState(() => loadSurveyDraft().organizingStyle ?? null);
+    const [showerFrequency, setShowerFrequency] = useState(() => loadSurveyDraft().showerFrequency ?? null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         saveSurveyDraft({ organizingStyle, showerFrequency });
     }, [organizingStyle, showerFrequency]);
+
+    function handleNext() {
+        if (![organizingStyle, showerFrequency].every(Number.isInteger)) {
+            setErrorMessage('청결·위생 설문의 모든 항목을 선택해주세요.');
+            return;
+        }
+
+        setErrorMessage('');
+        saveSurveyDraft({ organizingStyle, showerFrequency });
+        navigate('/surveys/living');
+    }
 
     return(
         <main className="relative min-h-dvh p-5 flex flex-col bg-brand-background pb-[calc(16px+env(safe-area-inset-bottom))]">
@@ -37,6 +49,7 @@ function SurveyClean() {
                     leftDescription="매우 깔끔"
                     rightDescription="어질러도 괜찮음"
                     onChange={setOrganizingStyle}
+                    required
                 />
                 <RadioBtnGroup
                     name="showerFrequency"
@@ -48,14 +61,17 @@ function SurveyClean() {
                         {item: "주 몇 회", value:4}
                     ]}
                     onChange={setShowerFrequency}
+                    value={showerFrequency}
+                    required
                     className="flex-1"
                     layout="grid grid-cols-2"
                     labelStyle="block text-sm font-sans font-bold text-fg-basic"
                 />
             </section>
+            {errorMessage && <p className="mb-3 text-xs font-bold text-[#c04a67]" role="alert">{errorMessage}</p>}
             <MoveBtnGroup
                 prev='/surveys/sleep'
-                onNext={() => navigate('/surveys/living')}
+                onNext={handleNext}
             />
         </main>
     );

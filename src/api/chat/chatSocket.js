@@ -1,6 +1,6 @@
 import { getAccessToken } from '../../auth/tokenStorage.js';
 
-const socketBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const socketBaseUrl = import.meta.env.VITE_SOCKET_BASE_URL;
 
 async function loadSocketDependencies() {
   if (!globalThis.global) {

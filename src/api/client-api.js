@@ -11,7 +11,7 @@ import {
     notifyTokenRefreshed,
 } from '../auth/authEvents.js';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+const baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
 // 일반 API 요청에 사용하는 axios 인스턴스
 const apiClient = axios.create({

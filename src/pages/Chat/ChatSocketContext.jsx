@@ -222,7 +222,7 @@ export function ChatSocketProvider({ children }) {
             if (!startPoint || toastExitDirection) return;
             setToastDragX((event.clientX - startPoint.x) * toastDragResistance);
           }}
-          onPointerUp={(event) => {
+          onPointerUp={() => {
             const startPoint = toastPointerStartRef.current;
             toastPointerStartRef.current = null;
             setIsToastDragging(false);

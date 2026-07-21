@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const baseUrl = `${import.meta.env.VITE_API_BASE_URL}/api/matching`;
+import apiClient from '../client-api.js';
 
 export function getMatchingErrorMessage(error, fallbackMessage = '요청을 처리하지 못했어요.') {
   const responseBody = error?.response?.data;
@@ -46,12 +44,7 @@ function sortMatchingPeople(people) {
 
 // 오늘의 추천 목록을 조회하고 실제 카드 데이터인 responseBody.data만 반환
 export async function getMatchingStatus() {
-  const accessToken = localStorage.getItem('accessToken');
-  const response = await axios.get(`${baseUrl}/status`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  const response = await apiClient.get('/api/matching/status');
 
   const matchingPeople = Array.isArray(response.data?.data) ? response.data.data : [];
   return sortMatchingPeople(matchingPeople);
@@ -59,33 +52,18 @@ export async function getMatchingStatus() {
 
 // 새로운 매칭을 생성하는 요청
 export async function executeMatching() {
-  const accessToken = localStorage.getItem('accessToken');
-  const response = await axios.post(
-    `${baseUrl}/match`,
-    null,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
+  const response = await apiClient.post('/api/matching/match', null);
 
   return response.data;
 }
 
 // 현재 추천 상대에게 좋아요 또는 거절 의사를 전달합니다.
 export async function sendMatchingRequest(receiverId, matchStatus) {
-  const accessToken = localStorage.getItem('accessToken');
-  const response = await axios.patch(
-    `${baseUrl}/requests`,
+  const response = await apiClient.patch(
+    '/api/matching/requests',
     {
       receiverId,
       matchStatus,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
     },
   );
 

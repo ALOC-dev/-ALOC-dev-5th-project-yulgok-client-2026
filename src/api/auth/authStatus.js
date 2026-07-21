@@ -1,14 +1,7 @@
-import axios from 'axios';
-
-const baseUrl = `${import.meta.env.VITE_API_BASE_URL}/api/auth`;
+import apiClient from '../client-api.js';
 
 export async function getCurrentUserId() {
-  const accessToken = localStorage.getItem('accessToken');
-  const response = await axios.get(`${baseUrl}/status`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  const response = await apiClient.get('/api/auth/status');
 
   return response.data?.data?.user?.id ?? null;
 }

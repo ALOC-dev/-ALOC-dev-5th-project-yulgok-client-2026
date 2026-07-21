@@ -1,8 +1,6 @@
-const socketBaseUrl = import.meta.env.VITE_API_BASE_URL;
+import { getAccessToken } from '../../auth/tokenStorage.js';
 
-function getAccessToken() {
-  return localStorage.getItem('accessToken');
-}
+const socketBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 async function loadSocketDependencies() {
   if (!globalThis.global) {
@@ -21,14 +19,10 @@ async function loadSocketDependencies() {
 }
 
 export async function createChatStompClient({ onConnect, onError, onDisconnect } = {}) {
-  const accessToken = getAccessToken();
   const { Client, SockJS } = await loadSocketDependencies();
 
-  return new Client({
+  const client = new Client({
     webSocketFactory: () => new SockJS(`${socketBaseUrl}/ws/chat`),
-    connectHeaders: {
-      Authorization: `Bearer ${accessToken}`,
-    },
     reconnectDelay: 5000,
     onConnect: () => {
       onConnect?.();
@@ -43,6 +37,16 @@ export async function createChatStompClient({ onConnect, onError, onDisconnect }
       onDisconnect?.(event);
     },
   });
+
+  client.beforeConnect = async () => {
+    const accessToken = getAccessToken();
+
+    client.connectHeaders = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : {};
+  };
+
+  return client;
 }
 
 export function parseStompBody(message) {

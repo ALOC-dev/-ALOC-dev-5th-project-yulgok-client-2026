@@ -1,16 +1,4 @@
-import axios from 'axios';
-
-const chatBaseUrl = `${import.meta.env.VITE_API_BASE_URL}/api/chat`;
-
-function getAuthConfig() {
-  const accessToken = localStorage.getItem('accessToken');
-
-  return {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  };
-}
+import apiClient from '../client-api.js';
 
 function getRoomTimestamp(room) {
   const timestamp = Date.parse(room.lastMessageTime);
@@ -35,14 +23,13 @@ export function getChatErrorMessage(error, fallbackMessage = '채팅 정보를 �
 }
 
 export async function getChatRooms() {
-  const response = await axios.get(`${chatBaseUrl}/rooms`, getAuthConfig());
+  const response = await apiClient.get('/api/chat/rooms');
   const rooms = Array.isArray(response.data?.data?.rooms) ? response.data.data.rooms : [];
   return sortRoomsByLastMessageTime(rooms);
 }
 
 export async function getChatMessages(roomId, { cursor, size = 30 } = {}) {
-  const response = await axios.get(`${chatBaseUrl}/rooms/${roomId}/messages`, {
-    ...getAuthConfig(),
+  const response = await apiClient.get(`/api/chat/rooms/${roomId}/messages`, {
     params: {
       ...(cursor != null ? { cursor } : {}),
       size,
@@ -57,16 +44,15 @@ export async function getChatMessages(roomId, { cursor, size = 30 } = {}) {
 }
 
 export async function markChatMessagesAsRead(roomId) {
-  const response = await axios.patch(
-    `${chatBaseUrl}/rooms/${roomId}/read`,
+  const response = await apiClient.patch(
+    `/api/chat/rooms/${roomId}/read`,
     null,
-    getAuthConfig(),
   );
 
   return Boolean(response.data?.data?.success);
 }
 
 export async function getTotalUnreadCount() {
-  const response = await axios.get(`${chatBaseUrl}/unread-count`, getAuthConfig());
+  const response = await apiClient.get('/api/chat/unread-count');
   return Number(response.data?.data?.totalUnreadCount) || 0;
 }

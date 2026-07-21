@@ -85,11 +85,17 @@ export function AuthProvider({ children }) {
         setIsCheckingAuth(false);
     }
 
-    function logout() {
-    removeAccessToken();
-    setIsAuthenticated(false);
-    setIsCheckingAuth(false);
-  }
+    async function logout() {
+        try {
+            await apiClient.post('/api/auth/logout', undefined, {
+                withCredentials: true,
+            });
+        } finally {
+            removeAccessToken();
+            setIsAuthenticated(false);
+            setIsCheckingAuth(false);
+        }
+    }
 
   const value = useMemo(
     () => ({

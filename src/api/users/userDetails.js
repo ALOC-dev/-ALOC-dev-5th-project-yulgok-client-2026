@@ -1,15 +1,6 @@
-import axios from 'axios';
-
-const baseUrl = `${import.meta.env.VITE_API_BASE_URL}/api/users`;
-
+import apiClient from '../client-api.js';
 
 export async function postUserDetails(requestBody) {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const response = await axios.post(`${baseUrl}/details`, requestBody, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        }
-    });
+    const response = await apiClient.post('/api/users/details', requestBody);
     return response.data;
 }

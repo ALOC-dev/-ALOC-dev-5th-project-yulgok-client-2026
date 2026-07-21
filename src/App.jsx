@@ -1,4 +1,4 @@
-import {Routes, Route} from 'react-router-dom'
+import {Routes, Route, Navigate} from 'react-router-dom'
 import './App.css'
 import Test from './Test.jsx'
 import Login from './pages/Login/Login.jsx'
@@ -29,7 +29,7 @@ function App() {
 
       {/* 로그인한 사용자만 접근할 수 있는 페이지 */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/test" element={<Test />} />
+        <Route path="/" element={<Navigate to="/matching" replace />} />
         <Route path="/user/details" element={<UserDetails />} />
 
         <Route path="/surveys/sleep" element={<SurveySleep />} />
@@ -60,6 +60,11 @@ function App() {
           <Route path="/my" element={<MyPage />} />
         </Route>
       </Route>
+
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
     </Routes>
   );
 }

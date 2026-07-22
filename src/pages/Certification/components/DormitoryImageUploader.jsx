@@ -43,7 +43,7 @@ function DormitoryImageUploader({ imageUrl, onChange }) {
                 )}
             </div>
 
-            <label className="flex h-12 cursor-pointer items-center justify-center rounded-full bg-[#7c32df] px-4 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90 active:opacity-80 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#7c32df]">
+            <label className="flex h-[34px] w-2/5 self-center cursor-pointer items-center justify-center rounded-[4px] bg-[#7c32df] px-3 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90 active:opacity-80 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#7c32df]">
                 {imageUrl ? "다른 사진 선택" : "앨범에서 선택"}
                 <input
                     type="file"

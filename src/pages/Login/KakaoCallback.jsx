@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getCurrentUser } from '../../api/auth/authStatus.js';
 import { postKakaoAuthCode } from '../../api/auth/kakaoLogin.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 
@@ -32,13 +33,15 @@ function KakaoCallback() {
         }
 
         login(accessToken);
+        const currentUser = await getCurrentUser();
 
         /*
          * 현재 카카오 로그인 과정에서는 state.from이 콜백까지
          * 자동 전달되지 않을 가능성이 있으므로 기본 주소를 사용합니다.
          */
         const destination =
-          location.state?.from?.pathname ?? '/user/details';
+          location.state?.from?.pathname ??
+          (currentUser?.role === 'ADMIN' ? '/admin' : '/user/details');
 
         navigate(destination, { replace: true });
       } catch (error) {

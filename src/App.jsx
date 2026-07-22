@@ -17,6 +17,7 @@ import MyPage from './pages/MyPage/MyPage.jsx'
 import ProtectedRoute from './auth/ProtectedRoute.jsx';
 import Admin from './pages/Admin/Admin.jsx'
 import CertifiedRoute from './auth/CertifiedRoute.jsx'
+import Onboarding from './pages/Onboarding/Onboarding.jsx'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Navigate to="/matching" replace />} />
         <Route path="/user/details" element={<UserDetails />} />
+        <Route path="/onboarding" element={<Onboarding />} />
 
         <Route path="/surveys/sleep" element={<SurveySleep />} />
         <Route path="/surveys/clean" element={<SurveyClean />} />

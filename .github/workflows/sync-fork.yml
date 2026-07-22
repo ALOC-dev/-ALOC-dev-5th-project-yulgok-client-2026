@@ -2,31 +2,34 @@ name: Sync Fork with Upstream
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 매일 자정(UTC 기준) 자동 실행
-  workflow_dispatch: # 필요하면 수동 실행도 가능
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout fork main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream repository
-        run: git remote add upstream https://github.com/ALOC-dev/5th-project-yulgok-client-2026.git
-
-      - name: Fetch upstream changes
-        run: git fetch upstream
-
-      - name: Merge upstream changes into main
+      - name: Fetch upstream
         run: |
-          git checkout main
-          git merge upstream/main --allow-unrelated-histories || true
+          git remote add upstream https://github.com/ALOC-dev/5th-project-yulgok-client-2026.git
+          git fetch upstream main
 
-      - name: Push changes to forked repository
+      - name: Fast-forward fork main
+        run: git merge --ff-only upstream/main
+
+      - name: Push fork main
         run: git push origin main

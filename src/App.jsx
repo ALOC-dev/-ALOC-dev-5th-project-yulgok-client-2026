@@ -15,6 +15,7 @@ import ChatRoom from './pages/Chat/ChatRoom.jsx'
 import { ChatSocketProvider } from './pages/Chat/ChatSocketContext.jsx'
 import MyPage from './pages/MyPage/MyPage.jsx'
 import ProtectedRoute from './auth/ProtectedRoute.jsx';
+import Admin from './pages/Admin/Admin.jsx'
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           path="/certification"
           element={<Certification />}
         />
+        <Route path="/admin" element={<Admin />} />
 
         <Route
           path="/chat/:roomId"

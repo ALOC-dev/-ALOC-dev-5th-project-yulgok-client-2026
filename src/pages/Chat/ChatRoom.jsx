@@ -146,6 +146,7 @@ function ChatRoom() {
   const [rejectErrorMessage, setRejectErrorMessage] = useState('');
 
   const readTimerRef = useRef(null);
+  const contactRequestKeyRef = useRef('');
 
   const markRoomAsReadSoon = useCallback(() => {
     if (!currentUserId || room?.status === 'CLOSED' || !isDocumentVisible()) return;
@@ -405,7 +406,12 @@ function ChatRoom() {
 
   useEffect(() => {
     const receiverId = getReceiverId(room);
-    if (room?.status !== 'CLOSED' || !receiverId || confirmedContact || isLoadingContact) return undefined;
+    if (room?.status !== 'CLOSED' || !receiverId || confirmedContact) return undefined;
+
+    const requestKey = `${roomId}:${receiverId}`;
+    if (contactRequestKeyRef.current === requestKey) return undefined;
+
+    contactRequestKeyRef.current = requestKey;
 
     let isActive = true;
     const contactTimer = window.setTimeout(() => {
@@ -413,26 +419,27 @@ function ChatRoom() {
 
       setIsLoadingContact(true);
       setContactErrorMessage('');
-    }, 0);
 
-    getConfirmedPartnerContact(receiverId)
-      .then((contact) => {
-        if (isActive) setConfirmedContact(contact);
-      })
-      .catch((error) => {
-        if (isActive) {
-          setContactErrorMessage(getMatchingErrorMessage(error, '연락처를 불러오지 못했어요.'));
-        }
-      })
-      .finally(() => {
-        if (isActive) setIsLoadingContact(false);
-      });
+      getConfirmedPartnerContact(receiverId)
+        .then((contact) => {
+          if (isActive) setConfirmedContact(contact);
+        })
+        .catch((error) => {
+          if (isActive) {
+            contactRequestKeyRef.current = '';
+            setContactErrorMessage(getMatchingErrorMessage(error, '연락처를 불러오지 못했어요.'));
+          }
+        })
+        .finally(() => {
+          if (isActive) setIsLoadingContact(false);
+        });
+    }, 0);
 
     return () => {
       isActive = false;
       window.clearTimeout(contactTimer);
     };
-  }, [confirmedContact, isLoadingContact, room]);
+  }, [confirmedContact, room, roomId]);
 
   const handleShowContact = useCallback(() => {
     setConfirmErrorMessage('');

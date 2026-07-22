@@ -47,7 +47,7 @@ function DormitoryImageUploader({ imageUrl, onChange }) {
                 {imageUrl ? "다른 사진 선택" : "앨범에서 선택"}
                 <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpg,image/jpeg,image/png,image/webp"
                     className="sr-only"
                     onChange={handleFileChange}
                 />

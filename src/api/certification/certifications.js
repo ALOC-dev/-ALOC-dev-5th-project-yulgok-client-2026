@@ -10,11 +10,11 @@ export async function getUploadUrl(fileName, contentType) {
     return { uploadUrl, imageKey };
 }
 
-export async function uploadCertificationImage(uploadUrl, file) {
+export async function uploadCertificationImage(uploadUrl, file, contentType) {
     const response = await fetch(uploadUrl, {
         method: 'PUT',
         headers: {
-            'Content-Type': file.type,
+            'Content-Type': contentType,
         },
         body: file,
     });

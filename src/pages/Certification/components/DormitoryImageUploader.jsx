@@ -10,17 +10,17 @@ function DormitoryImageUploader({ imageUrl, onChange }) {
     };
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex min-h-48 flex-col items-center justify-center overflow-hidden rounded-[28px] bg-ui-sub px-5 py-6">
+        <div className="flex flex-col gap-2">
+            <div className="flex min-h-40 flex-col items-center justify-center overflow-hidden rounded-[24px] bg-ui-sub px-4 py-4">
                 {imageUrl ? (
                     <img
                         src={imageUrl}
                         alt="기숙사 합격 화면 미리보기"
-                        className="max-h-52 w-full rounded-select object-contain"
+                        className="max-h-44 w-full rounded-select object-contain"
                     />
                 ) : (
                     <>
-                        <div className="mb-4 w-36 rotate-[-4deg] rounded-select bg-white p-3 shadow-sm">
+                        <div className="mb-3 w-32 rotate-[-4deg] rounded-select bg-white p-3 shadow-sm">
                             <div className="mb-2 flex items-center gap-2">
                                 <div className="h-8 w-8 rounded-lg bg-ui-sub" />
                                 <div className="flex flex-1 flex-col gap-1.5">
@@ -43,7 +43,7 @@ function DormitoryImageUploader({ imageUrl, onChange }) {
                 )}
             </div>
 
-            <label className="flex min-h-24 cursor-pointer items-center justify-center rounded-select border border-dashed border-fg-basic-muted bg-white px-4 text-sm font-bold text-fg-basic-muted">
+            <label className="flex h-12 cursor-pointer items-center justify-center rounded-full bg-[#7c32df] px-4 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90 active:opacity-80 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#7c32df]">
                 {imageUrl ? "다른 사진 선택" : "앨범에서 선택"}
                 <input
                     type="file"

@@ -19,3 +19,10 @@ test('selection buttons use outlined brand styling, a decorative check, and pres
         assert.doesNotMatch(source, /bg-brand-primary text-white/);
     }
 });
+
+test('multiple selection label shows its configured maximum in secondary text', async () => {
+    const source = await readFile(componentPaths[1], 'utf8');
+
+    assert.match(source, /최대 \{maxSelections\}개/);
+    assert.match(source, /ml-2 text-xs font-normal text-fg-secondary/);
+});

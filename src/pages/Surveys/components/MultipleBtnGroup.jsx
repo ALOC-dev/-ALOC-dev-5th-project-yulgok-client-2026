@@ -30,6 +30,9 @@ function MultipleBtnGroup({
             <label className={labelStyle || "block text-sm font-sans font-bold text-fg-basic"}>
                 {label}
                 {required && <span className="ml-1 text-[#c04a67]" aria-hidden="true">*</span>}
+                <span className="ml-2 text-xs font-normal text-fg-secondary">
+                    최대 {maxSelections}개
+                </span>
             </label>
             <div className={`mt-2 w-full gap-2 ${layout || "flex flex-wrap"}`}>
                 {items.map(({item, value: itemValue}) => {

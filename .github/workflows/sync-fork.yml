@@ -1,35 +1,30 @@
-name: Sync Fork with Upstream
+name: git push into another repo to deploy to vercel
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
-
-permissions:
-  contents: write
+  push:
+    branches: [main]
 
 jobs:
-  sync:
+  build:
     runs-on: ubuntu-latest
+    container: pandoc/latex
     steps:
-      - name: Checkout fork main branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v2
+      - name: Install mustache (to update the date)
+        run: apk add ruby && gem install mustache
+      - name: creates output
+        run: sh ./build.sh
+      - name: Pushes to another repository
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Fetch upstream
-        run: |
-          git remote add upstream https://github.com/ALOC-dev/5th-project-yulgok-client-2026.git
-          git fetch upstream main
-
-      - name: Fast-forward fork main
-        run: git merge --ff-only upstream/main
-
-      - name: Push fork main
-        run: git push origin main
+          source-directory: 'output'
+          destination-github-username: iaruok
+          destination-repository-name: irummate-client
+          user-email: ${{ secrets.EMAIL }}
+          commit-message: ${{ github.event.commits[0].message }}
+          target-branch: main
+      - name: Test get variable exported by push-to-another-repository
+        run: echo $DESTINATION_CLONED_DIRECTORY

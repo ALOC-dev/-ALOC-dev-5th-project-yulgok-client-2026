@@ -6,7 +6,7 @@ function TextArea({label, placeholder, value, onChange, required = false, maxLen
                 {required && <span className="ml-1 text-[#c04a67]" aria-hidden="true">*</span>}
             </label>
             <textarea
-                className="h-[150px] bg-white rounded-textarea font-sans text-xs text-fg-basic"
+                className="h-[150px] p-4 bg-white rounded-textarea font-sans text-xs text-fg-basic"
                 placeholder={placeholder}
                 value={value}
                 required={required}

@@ -9,6 +9,7 @@ function InlineInput({
     value,  // {변수} 형태로 props 넘겨야함
     placeholder,
     autoComplete,
+    maxLength,
     required=true,
     disabled,
     onChange,
@@ -31,6 +32,7 @@ function InlineInput({
                 value={value}
                 placeholder={placeholder}
                 autoComplete={autoComplete}
+                maxLength={maxLength}
                 required={required}
                 disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}  // 부모 컴포넌트는 input 변경 시 실행할 함수만 전달하면 됨

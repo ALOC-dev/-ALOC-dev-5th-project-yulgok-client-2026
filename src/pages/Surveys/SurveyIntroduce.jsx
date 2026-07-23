@@ -4,6 +4,8 @@ import TextArea from './components/TextArea.jsx'
 import ProgressBar from '../../components/ProgressBar.jsx'
 import MoveBtnGroup from '../../components/MoveBtnGroup.jsx'
 import MultipleBtnGroup from './components/MultipleBtnGroup.jsx';
+import InlineInput from '../UserDetails/components/InlineInput.jsx';
+import { generateRandomNickname } from './nicknameGenerator.js';
 import {
     buildSurveyRequestBody,
     clearSurveyDraft,
@@ -12,11 +14,13 @@ import {
     saveSurveyDraft,
 } from './surveyDraft.js';
 import { getSurveyErrorMessage, postSurveys } from '../../api/surveys/surveys.js';
+import { changeNickname } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 
 function SurveyIntroduce() {
     const navigate = useNavigate();
     const { refreshCurrentUser } = useAuth();
+    const [nickname, setNickname] = useState('');
     const [introduce, setIntroduce] = useState(() => loadSurveyDraft().introduce ?? '');
     const [visibleProfileFields, setVisibleProfileFields] = useState(() => loadSurveyDraft().visibleProfileFields ?? []);
     const [errorMessage, setErrorMessage] = useState('');
@@ -29,12 +33,20 @@ function SurveyIntroduce() {
     async function handleNext() {
         if (isSubmitting) return;
 
+        if (!nickname.trim()) {
+            setErrorMessage('닉네임을 입력해주세요.');
+            return;
+        }
+        if (nickname.trim().length > 8) {
+            setErrorMessage('닉네임은 8자 이하로 입력해주세요.');
+            return;
+        }
         if (!introduce.trim()) {
             setErrorMessage('자기소개를 입력해주세요.');
             return;
         }
-        if (introduce.trim().length > 500) {
-            setErrorMessage('자기소개는 500자 이하로 입력해주세요.');
+        if (introduce.trim().length > 200) {
+            setErrorMessage('자기소개는 200자 이하로 입력해주세요.');
             return;
         }
         if (visibleProfileFields.length < 1) {
@@ -56,6 +68,7 @@ function SurveyIntroduce() {
         try {
             setIsSubmitting(true);
             setErrorMessage('');
+            await changeNickname(nickname.trim());
             await postSurveys(requestBody);
             await refreshCurrentUser();
             clearSurveyDraft();
@@ -83,6 +96,28 @@ function SurveyIntroduce() {
                 </p>
             </header>
             <section className="flex flex-col flex-1 gap-8">
+                <div className="flex items-end gap-2">
+                    <div className="w-40">
+                        <InlineInput
+                            name="nickname"
+                            label="닉네임"
+                            type="text"
+                            value={nickname}
+                            placeholder="닉네임 입력"
+                            autoComplete="nickname"
+                            maxLength={8}
+                            onChange={setNickname}
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-input bg-white text-xl shadow-sm transition-colors hover:bg-ui-sub focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        aria-label="무작위 닉네임 생성"
+                        onClick={() => setNickname(generateRandomNickname())}
+                    >
+                        🎲
+                    </button>
+                </div>
                 <TextArea
                     label="자기소개"
                     placeholder="본인을 소개해주세요!"

@@ -5,7 +5,7 @@ import InlineInput from './components/InlineInput.jsx';
 import RadioBtnGroup from '../../components/RadioBtnGroup.jsx';
 import DropDownMenu from './components/DropDownMenu.jsx';
 import MoveBtnGroup from '../../components/MoveBtnGroup.jsx';
-import { postUserDetails } from '../../api/users/userDetails.js';
+import { postUserDetails } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 
 function UserDetails() {

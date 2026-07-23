@@ -7,6 +7,11 @@ import DropDownMenu from './components/DropDownMenu.jsx';
 import MoveBtnGroup from '../../components/MoveBtnGroup.jsx';
 import { postUserDetails } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import { Modal } from '../../components/Modal/index.js';
+import {
+    hasMissingUserDetails,
+    isBadRequest,
+} from './userDetailsValidation.js';
 
 function UserDetails() {
     const navigate = useNavigate();
@@ -17,6 +22,7 @@ function UserDetails() {
     const [phoneNumber, setPhoneNumber] = useState('');    // 전화번호
     const [studentId, setStudentId] = useState('');
     const [department, setDepartment] = useState('');
+    const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
 
     async function handleNext() {
         const requestBody = {
@@ -27,12 +33,23 @@ function UserDetails() {
             studentId: studentId,
             department: department
         };
+
+        if (hasMissingUserDetails(requestBody)) {
+            setShowRequiredFieldsModal(true);
+            return;
+        }
+
         try {
             const responseBody = await postUserDetails(requestBody);
             console.log(responseBody.message);
             await refreshCurrentUser();
             navigate('/surveys/sleep');
         } catch (error) {
+            if (isBadRequest(error)) {
+                setShowRequiredFieldsModal(true);
+                return;
+            }
+
             console.error(error);
         }
         
@@ -134,6 +151,16 @@ function UserDetails() {
                     onNext={handleNext}
                 />
             </div>
+            <Modal
+                open={showRequiredFieldsModal}
+                onClose={() => setShowRequiredFieldsModal(false)}
+                title="입력 확인"
+                size="small"
+            >
+                <p className="m-0 text-sm text-fg-basic">
+                    모든 항목은 필수 입력입니다.
+                </p>
+            </Modal>
         </main>
     );
 }

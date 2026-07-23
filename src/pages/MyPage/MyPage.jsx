@@ -180,7 +180,7 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#172238]/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0">
       <form
-        className="w-full max-w-[420px] rounded-[22px] bg-white p-5 shadow-[0_24px_60px_rgba(23,34,56,0.24)]"
+        className="flex max-h-[86dvh] w-full max-w-[420px] flex-col rounded-[22px] bg-white shadow-[0_24px_60px_rgba(23,34,56,0.24)]"
         onSubmit={(event) => {
           event.preventDefault();
           const nextNickname = nickname.trim();
@@ -195,27 +195,41 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
           onSubmit(requestBody);
         }}
       >
-        <div className="flex items-center gap-3">
-          <ProfileAvatar profile={{ ...profile, nickname, profileImageUrl }} size="small" />
-          <div>
-            <h2 className="text-lg font-extrabold text-fg-primary">프로필 편집</h2>
-            <p className="mt-1 text-xs font-semibold text-fg-basic-muted">닉네임과 프로필 사진을 수정할 수 있어요.</p>
+        <div className="shrink-0 p-5 pb-4">
+          <div className="flex items-center gap-3">
+            <ProfileAvatar profile={{ ...profile, nickname, profileImageUrl }} size="small" />
+            <div>
+              <h2 className="text-lg font-extrabold text-fg-primary">프로필 편집</h2>
+              <p className="mt-1 text-xs font-semibold text-fg-basic-muted">닉네임과 프로필 사진을 수정할 수 있어요.</p>
+            </div>
           </div>
+
+          <label className="mt-5 block text-sm font-extrabold text-fg-primary">
+            닉네임
+            <input
+              value={nickname}
+              onChange={(event) => setNickname(event.target.value)}
+              className="mt-2 h-12 w-full rounded-2xl border border-[#dbe5f2] bg-[#f7faff] px-4 text-sm font-bold outline-none focus:border-brand-primary"
+              placeholder="닉네임을 입력하세요"
+            />
+          </label>
         </div>
 
-        <label className="mt-5 block text-sm font-extrabold text-fg-primary">
-          닉네임
-          <input
-            value={nickname}
-            onChange={(event) => setNickname(event.target.value)}
-            className="mt-2 h-12 w-full rounded-2xl border border-[#dbe5f2] bg-[#f7faff] px-4 text-sm font-bold outline-none focus:border-brand-primary"
-            placeholder="닉네임을 입력하세요"
-          />
-        </label>
+        <div className="min-h-0 flex-1 border-y border-[#e8eef6] px-5 py-4">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-extrabold text-fg-primary">프로필 사진</p>
+              <p className="mt-1 text-xs font-semibold text-fg-basic-muted">
+                정해진 기본 이미지 중 하나를 선택할 수 있어요.
+              </p>
+            </div>
+            <span className="shrink-0 text-xs font-bold text-fg-basic-muted">
+              {PROFILE_IMAGE_OPTIONS.length}개
+            </span>
+          </div>
 
-        <div className="mt-4">
-          <p className="text-sm font-extrabold text-fg-primary">프로필 사진</p>
-          <div className="mt-2 grid grid-cols-4 gap-2">
+          <div className="mt-3 max-h-[34dvh] overflow-y-auto pr-1">
+            <div className="grid grid-cols-4 gap-2">
             {PROFILE_IMAGE_OPTIONS.map((option) => {
               const isSelected = profileImageUrl === option.value;
 
@@ -238,33 +252,33 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
                 </button>
               );
             })}
+            </div>
           </div>
-          <p className="mt-2 text-xs font-semibold leading-5 text-fg-basic-muted">
-            정해진 기본 이미지 중 하나를 선택할 수 있어요.
-          </p>
         </div>
 
-        {errorMessage && (
-          <p className="mt-4 rounded-xl bg-[#fff1f3] px-3 py-2 text-xs font-bold text-[#a83f57]" role="alert">
-            {errorMessage}
-          </p>
-        )}
+        <div className="shrink-0 p-5 pt-4">
+          {errorMessage && (
+            <p className="mb-4 rounded-xl bg-[#fff1f3] px-3 py-2 text-xs font-bold text-[#a83f57]" role="alert">
+              {errorMessage}
+            </p>
+          )}
 
-        <div className="mt-5 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            className="min-h-12 rounded-full bg-[#edf2f8] text-sm font-extrabold text-fg-primary"
-            onClick={onClose}
-          >
-            취소
-          </button>
-          <button
-            type="submit"
-            className="min-h-12 rounded-full bg-brand-primary text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
-            disabled={isSaving}
-          >
-            {isSaving ? '저장 중' : '저장'}
-          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              className="min-h-12 rounded-full bg-[#edf2f8] text-sm font-extrabold text-fg-primary"
+              onClick={onClose}
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              className="min-h-12 rounded-full bg-brand-primary text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
+              disabled={isSaving}
+            >
+              {isSaving ? '저장 중' : '저장'}
+            </button>
+          </div>
         </div>
       </form>
     </div>

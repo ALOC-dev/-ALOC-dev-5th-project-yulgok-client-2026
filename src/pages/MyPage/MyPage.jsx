@@ -8,6 +8,11 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
 
 const PROFILE_PLACEHOLDER = '프로필 이미지 없음';
+const PROFILE_IMAGE_BASE_PATH = '/images/profile-avatars/';
+const PROFILE_IMAGE_OPTIONS = Array.from({ length: 53 }, (_, index) => ({
+  label: `프로필 이미지 ${index + 1}`,
+  value: `profile-avatar-${index + 1}.png`,
+}));
 const LEGAL_CONTENT = {
   terms: {
     title: '이용약관',
@@ -77,6 +82,12 @@ function countMatchingStatus(people, status) {
   return people.filter((person) => person?.matchStatus === status).length;
 }
 
+function getProfileImageSrc(profileImageUrl) {
+  if (!profileImageUrl || profileImageUrl === 'string') return '';
+  if (profileImageUrl.startsWith('http') || profileImageUrl.startsWith('/')) return profileImageUrl;
+  return `${PROFILE_IMAGE_BASE_PATH}${profileImageUrl}`;
+}
+
 function MenuRow({ label, value, danger = false, onClick }) {
   return (
     <button
@@ -97,7 +108,7 @@ function MenuRow({ label, value, danger = false, onClick }) {
 
 function ProfileAvatar({ profile, size = 'large' }) {
   const sizeClass = size === 'large' ? 'h-16 w-16 text-2xl' : 'h-12 w-12 text-lg';
-  const imageUrl = profile?.profileImageUrl;
+  const imageUrl = getProfileImageSrc(profile?.profileImageUrl);
 
   if (imageUrl) {
     return (
@@ -177,7 +188,9 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
           const requestBody = {};
 
           if (nextNickname) requestBody.nickname = nextNickname;
-          if (nextProfileImageUrl) requestBody.profileImageUrl = nextProfileImageUrl;
+          if (nextProfileImageUrl !== (profile?.profileImageUrl || '')) {
+            requestBody.profileImageUrl = nextProfileImageUrl;
+          }
 
           onSubmit(requestBody);
         }}
@@ -186,7 +199,7 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
           <ProfileAvatar profile={{ ...profile, nickname, profileImageUrl }} size="small" />
           <div>
             <h2 className="text-lg font-extrabold text-fg-primary">프로필 편집</h2>
-            <p className="mt-1 text-xs font-semibold text-fg-basic-muted">닉네임과 프로필 이미지만 수정할 수 있어요.</p>
+            <p className="mt-1 text-xs font-semibold text-fg-basic-muted">닉네임과 프로필 사진을 수정할 수 있어요.</p>
           </div>
         </div>
 
@@ -200,15 +213,36 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
           />
         </label>
 
-        <label className="mt-4 block text-sm font-extrabold text-fg-primary">
-          프로필 이미지 URL
-          <input
-            value={profileImageUrl}
-            onChange={(event) => setProfileImageUrl(event.target.value)}
-            className="mt-2 h-12 w-full rounded-2xl border border-[#dbe5f2] bg-[#f7faff] px-4 text-sm font-bold outline-none focus:border-brand-primary"
-            placeholder="https://..."
-          />
-        </label>
+        <div className="mt-4">
+          <p className="text-sm font-extrabold text-fg-primary">프로필 사진</p>
+          <div className="mt-2 grid grid-cols-4 gap-2">
+            {PROFILE_IMAGE_OPTIONS.map((option) => {
+              const isSelected = profileImageUrl === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`flex aspect-square items-center justify-center rounded-2xl border-2 bg-[#f7faff] p-1 transition ${
+                    isSelected ? 'border-brand-primary shadow-[0_8px_20px_rgba(33,69,149,0.18)]' : 'border-[#dbe5f2]'
+                  }`}
+                  aria-label={`${option.label} 선택`}
+                  aria-pressed={isSelected}
+                  onClick={() => setProfileImageUrl(option.value)}
+                >
+                  <img
+                    src={`${PROFILE_IMAGE_BASE_PATH}${option.value}`}
+                    alt=""
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs font-semibold leading-5 text-fg-basic-muted">
+            정해진 기본 이미지 중 하나를 선택할 수 있어요.
+          </p>
+        </div>
 
         {errorMessage && (
           <p className="mt-4 rounded-xl bg-[#fff1f3] px-3 py-2 text-xs font-bold text-[#a83f57]" role="alert">
@@ -373,7 +407,7 @@ function MyPage() {
       setProfileErrorMessage('');
 
       if (!requestBody.nickname && !requestBody.profileImageUrl) {
-        setProfileErrorMessage('수정할 닉네임 또는 프로필 이미지 URL을 입력해 주세요.');
+        setProfileErrorMessage('수정할 닉네임이나 프로필 사진을 입력해 주세요.');
         setIsSavingProfile(false);
         return;
       }
@@ -383,7 +417,8 @@ function MyPage() {
         ...currentProfile,
         ...updatedProfile,
         nickname: updatedProfile?.nickname ?? requestBody.nickname ?? currentProfile?.nickname,
-        profileImageUrl: updatedProfile?.profileImageUrl ?? requestBody.profileImageUrl ?? currentProfile?.profileImageUrl,
+        profileImageUrl:
+          updatedProfile?.profileImageUrl ?? requestBody.profileImageUrl ?? currentProfile?.profileImageUrl,
       }));
       setIsEditOpen(false);
       setNoticeMessage('프로필이 저장됐어요.');

@@ -141,7 +141,13 @@ function ProfilePlaceholder({ name }) {
 function MatchingCard({ person, isFront = false }) {
   const [isIntroductionOpen, setIsIntroductionOpen] = useState(false);
   const percentage = Number(person.matchPercentage);
-  const profileImageUrl = getProfileImageUrl(person.profileImageUrl, '');
+  const rawProfileImageUrl =
+    person.profileImageUrl ??
+    person.profileImageURL ??
+    person.partnerProfileImageUrl ??
+    person.imageUrl ??
+    person.imageURL;
+  const profileImageUrl = getProfileImageUrl(rawProfileImageUrl, '');
   const matchDateLabel = getMatchDateLabel(person.matchDate, person.matchStatus);
   const isRecommendedToday = person.matchStatus === 'RECOMMENDED' && isMatchDateToday(person.matchDate);
   const statusInfo = isRecommendedToday

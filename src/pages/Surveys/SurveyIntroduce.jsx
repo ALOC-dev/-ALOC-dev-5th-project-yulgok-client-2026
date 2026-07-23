@@ -82,8 +82,12 @@ function SurveyIntroduce() {
     }
 
     return (
-        <main className="relative min-h-dvh p-5 flex flex-col bg-brand-background pb-[calc(16px+env(safe-area-inset-bottom))]">
+        <main className="flex h-dvh flex-col overflow-hidden bg-brand-background p-5 pb-[calc(16px+env(safe-area-inset-bottom))]">
             <ProgressBar current={5}/>
+            <div
+                data-survey-scroll-region
+                className="min-h-0 flex-1 overflow-y-auto pb-4"
+            >
             <header className="flex flex-col my-6 gap-1">
                 <p className="font-heading font-bold text-xs text-fg-secondary">
                     
@@ -151,12 +155,15 @@ function SurveyIntroduce() {
                     {errorMessage}
                 </p>
             )}
-            <MoveBtnGroup
-                prev='/surveys/living'
-                onNext={handleNext}
-                nextDisabled={isSubmitting}
-                nextLabel={isSubmitting ? '제출 중...' : '다음'}
-            />
+            </div>
+            <div className="shrink-0 bg-brand-background pt-3">
+                <MoveBtnGroup
+                    prev='/surveys/living'
+                    onNext={handleNext}
+                    nextDisabled={isSubmitting}
+                    nextLabel={isSubmitting ? '제출 중...' : '다음'}
+                />
+            </div>
         </main>
     );
 }

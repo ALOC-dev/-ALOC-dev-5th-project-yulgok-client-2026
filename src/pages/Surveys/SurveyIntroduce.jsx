@@ -114,6 +114,7 @@ function SurveyIntroduce() {
                         placeholder="닉네임 입력"
                         autoComplete="nickname"
                         maxLength={8}
+                        showCharacterCount
                         labelStyle="block text-sm font-sans font-bold text-fg-basic"
                         inputStyle="h-[37px] !py-0"
                         onChange={setNickname}
@@ -135,7 +136,8 @@ function SurveyIntroduce() {
                     value={introduce}
                     onChange={setIntroduce}
                     required
-                    maxLength={500}
+                    maxLength={200}
+                    showCharacterCount
                 />
                 <MultipleBtnGroup
                     label="중요하게 생각하는 항목"

@@ -13,21 +13,31 @@ function InlineInput({
     labelStyle,
     inputStyle = "",
     endAdornment,
+    showCharacterCount = false,
     required=true,
     disabled,
     onChange,
 }) {
     const generatedId = useId();
     const inputId = id ?? generatedId;  // id 없을 때만 useId로 생성
+    const currentLength = String(value ?? '').length;
+    const shouldShowCharacterCount = showCharacterCount && Number.isInteger(maxLength);
 
     return(
         <div className="flex flex-col">
-            <label 
-                htmlFor={inputId}
-                className={labelStyle || "font-heading font-semibold text-xs text-fg-basic-muted"}
-            >
-                {label}
-            </label>
+            <div className="flex items-center justify-between gap-2">
+                <label
+                    htmlFor={inputId}
+                    className={labelStyle || "font-heading font-semibold text-xs text-fg-basic-muted"}
+                >
+                    {label}
+                </label>
+                {shouldShowCharacterCount && (
+                    <span className="shrink-0 font-sans text-xs font-normal text-fg-basic-muted">
+                        {currentLength}/{maxLength}
+                    </span>
+                )}
+            </div>
             <div className="relative mt-2">
                 <input
                     id={inputId}

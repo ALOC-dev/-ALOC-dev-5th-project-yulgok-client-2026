@@ -4,13 +4,14 @@ import ProgressBar from '../../components/ProgressBar';
 import Slider from './components/Slider';
 import RadioBtnGroup from '../../components/RadioBtnGroup';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
+import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyClean() {
     const navigate = useNavigate();
     const [organizingStyle, setOrganizingStyle] = useState(() => loadSurveyDraft().organizingStyle ?? null);
     const [showerFrequency, setShowerFrequency] = useState(() => loadSurveyDraft().showerFrequency ?? null);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
 
     useEffect(() => {
         saveSurveyDraft({ organizingStyle, showerFrequency });
@@ -18,11 +19,10 @@ function SurveyClean() {
 
     function handleNext() {
         if (![organizingStyle, showerFrequency].every(Number.isInteger)) {
-            setErrorMessage('청결·위생 설문의 모든 항목을 선택해주세요.');
+            setShowRequiredFieldsModal(true);
             return;
         }
 
-        setErrorMessage('');
         saveSurveyDraft({ organizingStyle, showerFrequency });
         navigate('/surveys/living');
     }
@@ -72,7 +72,6 @@ function SurveyClean() {
                     labelStyle="block text-sm font-sans font-bold text-fg-basic"
                 />
             </section>
-            {errorMessage && <p className="mb-3 text-xs font-bold text-[#c04a67]" role="alert">{errorMessage}</p>}
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
@@ -80,6 +79,10 @@ function SurveyClean() {
                     onNext={handleNext}
                 />
             </div>
+            <RequiredFieldsModal
+                open={showRequiredFieldsModal}
+                onClose={() => setShowRequiredFieldsModal(false)}
+            />
         </main>
     );
 }

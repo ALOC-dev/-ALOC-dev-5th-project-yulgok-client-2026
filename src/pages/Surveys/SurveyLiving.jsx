@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ProgressBar from '../../components/ProgressBar';
 import RadioBtnGroup from '../../components/RadioBtnGroup';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
+import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyLiving() {
@@ -12,7 +13,7 @@ function SurveyLiving() {
     const [temperaturePreference, setTemperaturePreference] = useState(() => loadSurveyDraft().temperaturePreference ?? null);
     const [speakerStyle, setSpeakerStyle] = useState(() => loadSurveyDraft().speakerStyle ?? null);
     const [callInRoom, setCallInRoom] = useState(() => loadSurveyDraft().callInRoom ?? null);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
 
     useEffect(() => {
         saveSurveyDraft({ smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom });
@@ -21,11 +22,10 @@ function SurveyLiving() {
     function handleNext() {
         const answers = [smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom];
         if (!answers.every(Number.isInteger)) {
-            setErrorMessage('생활 설문의 모든 항목을 선택해주세요.');
+            setShowRequiredFieldsModal(true);
             return;
         }
 
-        setErrorMessage('');
         saveSurveyDraft({ smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom });
         navigate('/surveys/introduce');
     }
@@ -124,7 +124,6 @@ function SurveyLiving() {
                     labelStyle="block text-sm font-sans font-bold text-fg-basic"
                 />
             </section>
-            {errorMessage && <p className="mb-3 text-xs font-bold text-[#c04a67]" role="alert">{errorMessage}</p>}
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
@@ -132,6 +131,10 @@ function SurveyLiving() {
                     onNext={handleNext}
                 />
             </div>
+            <RequiredFieldsModal
+                open={showRequiredFieldsModal}
+                onClose={() => setShowRequiredFieldsModal(false)}
+            />
         </main>
     );
 }

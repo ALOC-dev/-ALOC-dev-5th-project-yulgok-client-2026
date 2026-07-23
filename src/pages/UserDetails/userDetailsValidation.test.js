@@ -36,8 +36,5 @@ test('UserDetails renders the required-fields modal without a footer action', as
 
   assert.match(source, /hasMissingUserDetails\(requestBody\)/);
   assert.match(source, /isBadRequest\(error\)/);
-  assert.match(source, /<Modal/);
-  assert.match(source, /title="입력 확인"/);
-  assert.match(source, /모든 항목은 필수 입력입니다\./);
-  assert.doesNotMatch(source, /<Modal\.Footer>/);
+  assert.match(source, /<RequiredFieldsModal/);
 });

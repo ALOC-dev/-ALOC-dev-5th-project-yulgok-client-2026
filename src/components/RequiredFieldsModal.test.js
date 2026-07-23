@@ -15,3 +15,21 @@ test('RequiredFieldsModal uses the shared close-only modal content', async () =>
   assert.doesNotMatch(source, /closeOnOverlayClick=/);
   assert.doesNotMatch(source, /closeOnEscape=/);
 });
+
+const requiredModalPagePaths = [
+  new URL('../pages/UserDetails/UserDetails.jsx', import.meta.url),
+  new URL('../pages/Surveys/SurveySleep.jsx', import.meta.url),
+  new URL('../pages/Surveys/SurveyClean.jsx', import.meta.url),
+  new URL('../pages/Surveys/SurveyLiving.jsx', import.meta.url),
+];
+
+test('required pages use RequiredFieldsModal without inline error state', async () => {
+  for (const pagePath of requiredModalPagePaths) {
+    const source = await readFile(pagePath, 'utf8');
+
+    assert.match(source, /<RequiredFieldsModal/);
+    assert.match(source, /setShowRequiredFieldsModal\(true\)/);
+    assert.doesNotMatch(source, /errorMessage/);
+    assert.doesNotMatch(source, /<Modal[\s>]/);
+  }
+});

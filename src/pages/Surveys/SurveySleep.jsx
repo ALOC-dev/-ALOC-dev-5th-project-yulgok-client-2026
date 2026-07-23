@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Slider from './components/Slider';
 import ProgressBar from '../../components/ProgressBar';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
+import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveySleep() {
@@ -10,7 +11,7 @@ function SurveySleep() {
     const [bedtime, setBedtime] = useState(() => loadSurveyDraft().bedtime ?? null);
     const [snoring, setSnoring] = useState(() => loadSurveyDraft().snoring ?? null);
     const [sleepTalking, setSleepTalking] = useState(() => loadSurveyDraft().sleepTalking ?? null);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
 
     useEffect(() => {
         saveSurveyDraft({ bedtime, snoring, sleepTalking });
@@ -18,11 +19,10 @@ function SurveySleep() {
 
     function handleNext() {
         if (![bedtime, snoring, sleepTalking].every(Number.isInteger)) {
-            setErrorMessage('수면 설문의 모든 항목을 선택해주세요.');
+            setShowRequiredFieldsModal(true);
             return;
         }
 
-        setErrorMessage('');
         saveSurveyDraft({ bedtime, snoring, sleepTalking });
         navigate('/surveys/clean');
     }
@@ -74,7 +74,6 @@ function SurveySleep() {
                     required
                 />
             </section>
-            {errorMessage && <p className="mb-3 text-xs font-bold text-[#c04a67]" role="alert">{errorMessage}</p>}
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
@@ -82,6 +81,10 @@ function SurveySleep() {
                     onNext={handleNext}
                 />
             </div>
+            <RequiredFieldsModal
+                open={showRequiredFieldsModal}
+                onClose={() => setShowRequiredFieldsModal(false)}
+            />
         </main>
     );
 }

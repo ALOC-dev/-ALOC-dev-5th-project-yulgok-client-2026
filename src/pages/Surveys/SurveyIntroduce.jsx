@@ -82,8 +82,12 @@ function SurveyIntroduce() {
     }
 
     return (
-        <main className="relative min-h-dvh p-5 flex flex-col bg-brand-background pb-[calc(16px+env(safe-area-inset-bottom))]">
+        <main className="flex h-dvh flex-col overflow-hidden bg-brand-background p-5 pb-[calc(16px+env(safe-area-inset-bottom))]">
             <ProgressBar current={5}/>
+            <div
+                data-survey-scroll-region
+                className="min-h-0 flex-1 overflow-y-auto pb-4"
+            >
             <header className="flex flex-col my-6 gap-1">
                 <p className="font-heading font-bold text-xs text-fg-secondary">
                     
@@ -96,30 +100,28 @@ function SurveyIntroduce() {
                 </p>
             </header>
             <section className="flex flex-col flex-1 gap-8">
-                <div className="flex items-end gap-2">
-                    <div className="w-40">
-                        <InlineInput
-                            name="nickname"
-                            label="닉네임"
-                            type="text"
-                            value={nickname}
-                            placeholder="닉네임 입력"
-                            autoComplete="nickname"
-                            maxLength={8}
-                            labelStyle="block text-sm font-sans font-bold text-fg-basic"
-                            inputStyle="h-[37px] !py-0"
-                            onChange={setNickname}
-                        />
-                    </div>
-                    <button
-                        type="button"
-                        className="flex h-[37px] w-[46px] shrink-0 items-center justify-center rounded-input bg-white text-xl shadow-sm transition-colors hover:bg-ui-sub focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                        aria-label="무작위 닉네임 생성"
-                        onClick={() => setNickname(generateRandomNickname())}
-                    >
-                        🎲
-                    </button>
-                </div>
+                <InlineInput
+                    name="nickname"
+                    label="닉네임"
+                    type="text"
+                    value={nickname}
+                    placeholder="닉네임 입력"
+                    autoComplete="nickname"
+                    maxLength={8}
+                    labelStyle="block text-sm font-sans font-bold text-fg-basic"
+                    inputStyle="h-[37px] !py-0"
+                    onChange={setNickname}
+                    endAdornment={(
+                        <button
+                            type="button"
+                            className="flex h-9 w-9 items-center justify-center rounded-full bg-transparent text-xl transition-colors hover:bg-ui-sub focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                            aria-label="무작위 닉네임 생성"
+                            onClick={() => setNickname(generateRandomNickname())}
+                        >
+                            🎲
+                        </button>
+                    )}
+                />
                 <TextArea
                     label="자기소개"
                     placeholder="본인을 소개해주세요!"
@@ -151,12 +153,15 @@ function SurveyIntroduce() {
                     {errorMessage}
                 </p>
             )}
-            <MoveBtnGroup
-                prev='/surveys/living'
-                onNext={handleNext}
-                nextDisabled={isSubmitting}
-                nextLabel={isSubmitting ? '제출 중...' : '다음'}
-            />
+            </div>
+            <div className="shrink-0 bg-brand-background pt-3">
+                <MoveBtnGroup
+                    prev='/surveys/living'
+                    onNext={handleNext}
+                    nextDisabled={isSubmitting}
+                    nextLabel={isSubmitting ? '제출 중...' : '다음'}
+                />
+            </div>
         </main>
     );
 }

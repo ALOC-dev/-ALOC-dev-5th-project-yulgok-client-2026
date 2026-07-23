@@ -12,6 +12,7 @@ function InlineInput({
     maxLength,
     labelStyle,
     inputStyle = "",
+    endAdornment,
     required=true,
     disabled,
     onChange,
@@ -27,19 +28,26 @@ function InlineInput({
             >
                 {label}
             </label>
-            <input
-                id={inputId}
-                name={name}
-                type={type}
-                value={value}
-                placeholder={placeholder}
-                autoComplete={autoComplete}
-                maxLength={maxLength}
-                required={required}
-                disabled={disabled}
-                onChange={(e) => onChange(e.target.value)}  // 부모 컴포넌트는 input 변경 시 실행할 함수만 전달하면 됨
-                className={`mt-2 w-full rounded-input border border-white bg-white px-4 py-3 font-heading text-sm text-fg-basic shadow-sm outline-none placeholder:text-fg-basic-muted focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:bg-ui-sub ${inputStyle}`}
-            />
+            <div className="relative mt-2">
+                <input
+                    id={inputId}
+                    name={name}
+                    type={type}
+                    value={value}
+                    placeholder={placeholder}
+                    autoComplete={autoComplete}
+                    maxLength={maxLength}
+                    required={required}
+                    disabled={disabled}
+                    onChange={(e) => onChange(e.target.value)}  // 부모 컴포넌트는 input 변경 시 실행할 함수만 전달하면 됨
+                    className={`w-full rounded-input border border-white bg-white px-4 py-3 font-heading text-sm text-fg-basic shadow-sm outline-none placeholder:text-fg-basic-muted focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:bg-ui-sub ${endAdornment ? "pr-12" : ""} ${inputStyle}`}
+                />
+                {endAdornment && (
+                    <div className="absolute inset-y-0 right-1 flex items-center">
+                        {endAdornment}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

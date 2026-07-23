@@ -8,10 +8,59 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
 
 const PROFILE_PLACEHOLDER = '프로필 이미지 없음';
-const PREPARING_MESSAGE = '이번 버전에서는 준비 중인 기능이에요.';
+const LEGAL_CONTENT = {
+  terms: {
+    title: '이용약관',
+    description: '이룸매 서비스 이용을 위한 기본 안내입니다.',
+    sections: [
+      {
+        heading: '서비스 목적',
+        body: '이룸매는 기숙사 룸메이트 탐색과 매칭을 돕기 위한 서비스입니다.',
+      },
+      {
+        heading: '회원 정보',
+        body: '회원은 정확한 기본 정보와 설문 정보를 입력해야 하며, 허위 정보 입력으로 발생하는 문제는 본인에게 책임이 있습니다.',
+      },
+      {
+        heading: '매칭 및 채팅',
+        body: '매칭 결과와 채팅은 룸메이트 선택을 돕기 위한 참고 정보이며, 최종 기숙사 룸메이트 신청은 학교 안내에 따라 별도로 진행해야 합니다.',
+      },
+      {
+        heading: '문의 및 신고',
+        body: '서비스 이용 중 문의 또는 신고가 필요한 경우 마이페이지의 문의하기를 통해 운영팀에 연락할 수 있습니다.',
+      },
+    ],
+  },
+  privacy: {
+    title: '개인정보 처리방침',
+    description: '회원 가입과 룸메이트 매칭에 필요한 정보만 수집하고 이용합니다.',
+    sections: [
+      {
+        heading: '수집·이용 목적',
+        body: '회원 가입 및 본인 확인, 기숙사 입주생 확인, 룸메이트 성향 분석과 추천, 매칭 관련 알림, 부정 이용 방지 및 서비스 개선',
+      },
+      {
+        heading: '수집 항목',
+        body: '이름, 학번, 학과, 이메일 주소, 성별, 수면·흡연·청결·생활 소음·성격 및 생활 방식에 관한 설문 응답, IP 주소, 방문 일시, 서비스 이용 기록 및 부정 이용 기록',
+      },
+      {
+        heading: '프로필 공개 항목',
+        body: '룸메이트 탐색과 매칭을 위해 이름 또는 닉네임, 프로필 사진, 한 줄 소개, 취향 및 성향 설문 결과가 추천 또는 매칭 대상 회원에게 공개될 수 있습니다. 학번과 이메일 주소는 공개하지 않습니다.',
+      },
+      {
+        heading: '보유·이용 기간',
+        body: '회원 탈퇴 또는 수집 목적 달성 시 지체 없이 파기합니다. 다만 관계 법령에 따라 보존할 의무가 있는 정보는 해당 법령에서 정한 기간 동안 보관합니다.',
+      },
+      {
+        heading: '동의 거부 권리 및 불이익',
+        body: '동의를 거부할 권리가 있습니다. 다만 필수 개인정보의 수집 및 이용에 동의하지 않으면 회원 가입과 룸메이트 매칭 서비스를 이용할 수 없습니다.',
+      },
+    ],
+  },
+};
 
 function getDisplayName(profile) {
-  return profile?.detail?.realName || profile?.nickname || '이름매';
+  return profile?.nickname || profile?.detail?.realName || '이름매';
 }
 
 function getProfileInitial(profile) {
@@ -123,10 +172,14 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
         className="w-full max-w-[420px] rounded-[22px] bg-white p-5 shadow-[0_24px_60px_rgba(23,34,56,0.24)]"
         onSubmit={(event) => {
           event.preventDefault();
-          onSubmit({
-            nickname: nickname.trim(),
-            profileImageUrl: profileImageUrl.trim() || null,
-          });
+          const nextNickname = nickname.trim();
+          const nextProfileImageUrl = profileImageUrl.trim();
+          const requestBody = {};
+
+          if (nextNickname) requestBody.nickname = nextNickname;
+          if (nextProfileImageUrl) requestBody.profileImageUrl = nextProfileImageUrl;
+
+          onSubmit(requestBody);
         }}
       >
         <div className="flex items-center gap-3">
@@ -184,6 +237,68 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
   );
 }
 
+function SupportModal({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#172238]/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0">
+      <div className="w-full max-w-[420px] rounded-[22px] bg-white p-5 shadow-[0_24px_60px_rgba(23,34,56,0.24)]">
+        <h2 className="text-lg font-extrabold text-fg-primary">문의하기</h2>
+        <p className="mt-3 text-sm font-semibold leading-6 text-fg-basic-muted">
+          서비스 문의나 신고는 운영팀 1:1 오픈채팅으로 남겨주세요. 아래 링크를 누르면 카카오톡 오픈채팅으로 이동합니다.
+        </p>
+        <div className="mt-4 rounded-2xl bg-[#f5f8fc] px-4 py-3 text-sm font-extrabold text-fg-primary">
+          {OPEN_CHAT_URL}
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            className="min-h-12 rounded-full bg-[#edf2f8] text-sm font-extrabold text-fg-primary"
+            onClick={onClose}
+          >
+            닫기
+          </button>
+          <button
+            type="button"
+            className="min-h-12 rounded-full bg-brand-primary text-sm font-extrabold text-white"
+            onClick={() => window.open(OPEN_CHAT_URL, '_blank', 'noopener,noreferrer')}
+          >
+            오픈채팅 열기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LegalModal({ content, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#172238]/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0">
+      <div className="max-h-[82dvh] w-full max-w-[420px] overflow-hidden rounded-[22px] bg-white shadow-[0_24px_60px_rgba(23,34,56,0.24)]">
+        <div className="border-b border-[#e1e8f2] px-5 py-4">
+          <h2 className="text-lg font-extrabold text-fg-primary">{content.title}</h2>
+          <p className="mt-1 text-xs font-semibold text-fg-basic-muted">{content.description}</p>
+        </div>
+        <div className="max-h-[58dvh] overflow-y-auto px-5 py-4">
+          {content.sections.map(({ heading, body }) => (
+            <section key={heading} className="mt-4 first:mt-0">
+              <h3 className="text-sm font-extrabold text-fg-primary">{heading}</h3>
+              <p className="mt-1 text-sm font-semibold leading-6 text-fg-basic-muted">{body}</p>
+            </section>
+          ))}
+        </div>
+        <div className="px-5 pb-5">
+          <button
+            type="button"
+            className="min-h-12 w-full rounded-full bg-brand-primary text-sm font-extrabold text-white"
+            onClick={onClose}
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MyPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -199,6 +314,8 @@ function MyPage() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileErrorMessage, setProfileErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState('');
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [legalModalType, setLegalModalType] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -245,7 +362,7 @@ function MyPage() {
       return;
     }
 
-    window.open(OPEN_CHAT_URL, '_blank', 'noopener,noreferrer');
+    setIsSupportModalOpen(true);
   }
 
   async function handleProfileSubmit(requestBody) {
@@ -254,6 +371,12 @@ function MyPage() {
     try {
       setIsSavingProfile(true);
       setProfileErrorMessage('');
+
+      if (!requestBody.nickname && !requestBody.profileImageUrl) {
+        setProfileErrorMessage('수정할 닉네임 또는 프로필 이미지 URL을 입력해 주세요.');
+        setIsSavingProfile(false);
+        return;
+      }
 
       const updatedProfile = await updateUserProfile(requestBody);
       setProfile((currentProfile) => ({
@@ -292,14 +415,6 @@ function MyPage() {
     <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full max-w-[430px] flex-col px-5 pb-6 pt-7">
       <header className="flex items-center justify-between">
         <h1 className="font-heading text-2xl font-extrabold text-fg-primary">마이 페이지</h1>
-        <button
-          type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-xl font-extrabold text-fg-basic-muted"
-          aria-label="마이페이지 메뉴"
-          onClick={() => setNoticeMessage(PREPARING_MESSAGE)}
-        >
-          ...
-        </button>
       </header>
 
       <div className="mt-6">
@@ -331,13 +446,11 @@ function MyPage() {
       <div className="mt-5 overflow-hidden rounded-[22px] bg-white shadow-sm">
         <MenuRow label="프로필 편집" onClick={() => setIsEditOpen(true)} />
         <MenuRow label="설문 다시하기" value={surveyValue} onClick={() => navigate('/surveys/sleep')} />
-        <MenuRow label="알림 설정" value="준비 중" onClick={() => setNoticeMessage(PREPARING_MESSAGE)} />
-        <MenuRow label="차단 / 신고 관리" value="문의하기" onClick={openExternalSupport} />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-[22px] bg-white shadow-sm">
-        <MenuRow label="이용약관" onClick={() => setNoticeMessage(PREPARING_MESSAGE)} />
-        <MenuRow label="개인정보 처리방침" onClick={() => setNoticeMessage(PREPARING_MESSAGE)} />
+        <MenuRow label="이용약관" onClick={() => setLegalModalType('terms')} />
+        <MenuRow label="개인정보 처리방침" onClick={() => setLegalModalType('privacy')} />
         <MenuRow label="문의하기" onClick={openExternalSupport} />
         <MenuRow
           label={isLoggingOut ? '로그아웃 중...' : '로그아웃'}
@@ -353,6 +466,17 @@ function MyPage() {
           errorMessage={profileErrorMessage}
           onClose={() => setIsEditOpen(false)}
           onSubmit={handleProfileSubmit}
+        />
+      )}
+
+      {isSupportModalOpen && (
+        <SupportModal onClose={() => setIsSupportModalOpen(false)} />
+      )}
+
+      {legalModalType && (
+        <LegalModal
+          content={LEGAL_CONTENT[legalModalType]}
+          onClose={() => setLegalModalType(null)}
         />
       )}
     </section>

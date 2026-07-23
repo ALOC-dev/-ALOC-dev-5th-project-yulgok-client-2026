@@ -7,6 +7,7 @@ import { certificate, getUploadUrl, uploadCertificationImage } from "../../api/c
 import { submitCertificationImage } from "../../api/certification/certificationFlow.js";
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { canAccessCertifiedRoutes } from "../../auth/certificationAccess.js";
+import { Modal } from "../../components/Modal/index.js";
 
 function getRequestStorageKey(userId) {
     return `certification-requested:${userId ?? 'current'}`;
@@ -20,6 +21,7 @@ function Certification() {
     const [requestedStorageKey, setRequestedStorageKey] = useState(null);
     const [isWorking, setIsWorking] = useState(false);
     const [message, setMessage] = useState("");
+    const [showExample, setShowExample] = useState(false);
     const previewUrlRef = useRef("");
     const currentRequestStorageKey = getRequestStorageKey(currentUser?.id);
     const isRequested = requestedStorageKey === currentRequestStorageKey
@@ -95,9 +97,19 @@ function Certification() {
         <main className="relative min-h-dvh p-5 flex flex-col bg-brand-background pb-[calc(16px+env(safe-area-inset-bottom))]">
             <ProgressBar current={6}/>
             <header className="flex flex-col my-6 gap-1">
-                <h1 className="font-heading font-extrabold text-lg text-fg-primary">
-                    기숙사 인증
-                </h1>
+                <div className="flex items-center gap-2">
+                    <h1 className="font-heading font-extrabold text-lg text-fg-primary">
+                        기숙사 인증
+                    </h1>
+                    <button
+                        type="button"
+                        onClick={() => setShowExample(true)}
+                        className="flex h-6 w-6 items-center justify-center rounded-full bg-ui-sub text-xs font-bold text-fg-secondary transition-colors hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                        aria-label="기숙사 인증 사진 예시 보기"
+                    >
+                        ?
+                    </button>
+                </div>
                 <p className="font-heading text-xs text-fg-basic-muted">
                     인증을 마치면 매칭이 시작돼요.
                 </p>
@@ -134,6 +146,32 @@ function Certification() {
                 disabled={isWorking || (!isRequested && !certificateImage)}
                 label={isWorking ? '확인 중...' : isRequested ? '인증 확인' : '인증 요청 보내기'}
             />
+
+            <Modal
+                open={showExample}
+                onClose={() => setShowExample(false)}
+                title="기숙사 인증 사진 예시"
+                description="대학행정정보시스템에서 본인의 이름이 보이도록 전체 화면을 캡처해 주세요."
+                size="large"
+            >
+                <figure className="m-0 overflow-hidden rounded-lg border border-[var(--border)] bg-ui-sub">
+                    <img
+                        src="/images/cert-example.png"
+                        alt="대학행정정보시스템 화면에서 본인 이름과 기숙사 입사 신청 내역을 표시한 인증 사진 예시"
+                        className="block h-auto w-full object-contain"
+                    />
+                </figure>
+                <ul className="mb-0 mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fg-basic-muted">
+                    <li>우측 상단에 로그인한 본인의 이름이 보여야 합니다.</li>
+                    <li>기숙사 입사 신청 또는 합격 내역이 함께 보이도록 전체 화면을 캡처해 주세요.</li>
+                    <li>주민등록번호, 연락처 등 불필요한 개인정보는 반드시 가려 주세요.</li>
+                </ul>
+                <Modal.Footer>
+                    <Modal.Button onClick={() => setShowExample(false)}>
+                        확인
+                    </Modal.Button>
+                </Modal.Footer>
+            </Modal>
         </main>
     );
 }

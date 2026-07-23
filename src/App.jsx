@@ -1,5 +1,6 @@
 import {Routes, Route, Navigate} from 'react-router-dom'
 import './App.css'
+import Test from './pages/Test.jsx'
 import Login from './pages/Login/Login.jsx'
 import UserDetails from './pages/UserDetails/UserDetails.jsx'
 import KakaoCallback from './pages/Login/KakaoCallback.jsx'
@@ -28,6 +29,8 @@ function App() {
         path="/oauth/kakao/callback"
         element={<KakaoCallback />}
       />
+      <Route path="/test" element={<Test />} />
+
 
       {/* 로그인한 사용자만 접근할 수 있는 페이지 */}
       <Route element={<ProtectedRoute />}>

@@ -6,6 +6,17 @@ const variantClasses = {
   danger: 'bg-red-600 text-white hover:bg-red-700',
 };
 
+/**
+ * Standard action button for `Modal.Footer`.
+ *
+ * Supported variants are `primary` (default), `secondary`, and `danger`.
+ * This component forwards its ref for `initialFocusRef` usage. Clicking it does
+ * not close the Modal automatically; the supplied `onClick` handler owns that
+ * decision and should update the parent's `open` state when appropriate.
+ *
+ * All native button props are forwarded. The default `type` is `button` to
+ * prevent accidental form submission.
+ */
 const ModalButton = forwardRef(function ModalButton(
   {
     variant = 'primary',

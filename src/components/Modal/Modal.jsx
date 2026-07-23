@@ -18,6 +18,32 @@ const focusableSelector = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
+/**
+ * Controlled, accessible modal shell shared across the application.
+ *
+ * The parent owns `open` and must update it from `onClose` or Footer button
+ * handlers. Footer buttons never close the modal automatically.
+ *
+ * `onClose` receives one of these user-dismissal reasons:
+ * `{ reason: 'overlay' | 'escape' | 'close-button' }`.
+ *
+ * `Modal.Footer` must be a direct child of `Modal`. Direct placement lets the
+ * shell keep the Footer outside the scrolling body when content is long.
+ *
+ * @param {object} props
+ * @param {boolean} props.open Whether the modal is rendered.
+ * @param {(event: { reason: 'overlay' | 'escape' | 'close-button' }) => void} props.onClose
+ * Called when the overlay, Escape key, or top-right close button requests dismissal.
+ * @param {import('react').ReactNode} [props.title] Accessible dialog title.
+ * @param {import('react').ReactNode} [props.description] Optional title description.
+ * @param {import('react').ReactNode} [props.children] Body content and optional direct `Modal.Footer`.
+ * @param {'small' | 'medium' | 'large' | 'full'} [props.size='medium'] Dialog maximum width.
+ * @param {boolean} [props.closeOnOverlayClick=true] Enables overlay dismissal.
+ * @param {boolean} [props.closeOnEscape=true] Enables Escape-key dismissal.
+ * @param {boolean} [props.showCloseButton=true] Shows the top-right X button.
+ * @param {import('react').RefObject<HTMLElement | null>} [props.initialFocusRef]
+ * Element focused when the modal opens. Falls back to the first focusable child.
+ */
 function Modal({
   open,
   onClose,

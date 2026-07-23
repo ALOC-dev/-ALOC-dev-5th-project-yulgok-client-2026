@@ -17,11 +17,11 @@ const cases = [
     certified: false,
   },
   {
-    name: 'admin enters the admin service',
-    user: { role: 'ADMIN' },
+    name: 'active admin enters admin first and can access certified routes',
+    user: { role: 'ADMIN', status: 'ACTIVE' },
     stage: 'ADMIN',
     destination: '/admin',
-    certified: false,
+    certified: true,
   },
   {
     name: 'guest without survey consent enters consent',

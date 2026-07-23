@@ -36,5 +36,13 @@ export function getServiceDestination(user) {
 }
 
 export function canAccessCertifiedRoutes(user) {
-  return getServiceStage(user) === SERVICE_STAGES.CERTIFIED;
+  const isKnownUserRole = user?.role === 'USER' || user?.role === 'ADMIN';
+
+  if (isKnownUserRole && user.status === 'ACTIVE') return true;
+
+  return (
+    user?.role === 'USER'
+    && user.surveyCompleted === true
+    && user.certificationStatus === 'APPROVED'
+  );
 }

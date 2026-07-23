@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
 import { ChevronDownIcon, FilledHeartIcon } from './MatchingIcons.jsx';
 
 const PREFERENCE_LABELS = {
@@ -140,6 +141,7 @@ function ProfilePlaceholder({ name }) {
 function MatchingCard({ person, isFront = false }) {
   const [isIntroductionOpen, setIsIntroductionOpen] = useState(false);
   const percentage = Number(person.matchPercentage);
+  const profileImageUrl = getProfileImageUrl(person.profileImageUrl, '');
   const matchDateLabel = getMatchDateLabel(person.matchDate, person.matchStatus);
   const isRecommendedToday = person.matchStatus === 'RECOMMENDED' && isMatchDateToday(person.matchDate);
   const statusInfo = isRecommendedToday
@@ -157,7 +159,18 @@ function MatchingCard({ person, isFront = false }) {
   return (
     <article className="w-full min-w-0 overflow-hidden rounded-[clamp(1.375rem,4vw,2rem)] bg-white shadow-[0_20px_45px_rgba(36,69,119,0.16)]">
       <div className="relative h-[clamp(9.5rem,calc(28vh+6vw),22rem)] overflow-hidden">
-        <ProfilePlaceholder name={person.name} />
+        {profileImageUrl ? (
+          <img
+            className="h-full w-full bg-[#dce7f7] object-cover"
+            src={profileImageUrl}
+            alt={`${person.name || '사용자'} 프로필`}
+            onError={(event) => {
+              event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
+            }}
+          />
+        ) : (
+          <ProfilePlaceholder name={person.name} />
+        )}
 
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
         <div

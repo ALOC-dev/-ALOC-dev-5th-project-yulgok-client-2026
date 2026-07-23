@@ -1,15 +1,4 @@
-const fallbackProfileImageUrl = '/favicon.svg';
-
-function isValidProfileImageUrl(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return false;
-
-  try {
-    const url = new URL(profileImageUrl, window.location.origin);
-    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
-  } catch {
-    return false;
-  }
-}
+import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
 
 function formatMessageTime(createdAt) {
   const date = new Date(createdAt);
@@ -30,9 +19,7 @@ function MessageItem({
   partnerName,
   partnerProfileImageUrl,
 }) {
-  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
-    ? partnerProfileImageUrl
-    : fallbackProfileImageUrl;
+  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl);
   const showUnreadMark = isMine && !message.isRead;
   const showMineMeta = isMine && (showUnreadMark || showTime);
 
@@ -46,7 +33,7 @@ function MessageItem({
               src={profileImageUrl}
               alt={`${partnerName} 프로필`}
               onError={(event) => {
-                event.currentTarget.src = fallbackProfileImageUrl;
+                event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
               }}
             />
           )}

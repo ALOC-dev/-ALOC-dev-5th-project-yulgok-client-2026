@@ -1,17 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-
-const fallbackProfileImageUrl = '/favicon.svg';
-
-function isValidProfileImageUrl(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return false;
-
-  try {
-    const url = new URL(profileImageUrl, window.location.origin);
-    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
-  } catch {
-    return false;
-  }
-}
+import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
 
 function getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm) {
   if (matchStatus === 'CONFIRM_PENDING' && confirmedByMe === true && canConfirm !== true) return '확정 대기';
@@ -35,9 +23,7 @@ function ChatRoomHeader({
   onReject,
 }) {
   const navigate = useNavigate();
-  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
-    ? partnerProfileImageUrl
-    : fallbackProfileImageUrl;
+  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl);
   const statusLabel = getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm);
 
   return (
@@ -58,7 +44,7 @@ function ChatRoomHeader({
         src={profileImageUrl}
         alt={`${partnerName} 프로필`}
         onError={(event) => {
-          event.currentTarget.src = fallbackProfileImageUrl;
+          event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
         }}
       />
 

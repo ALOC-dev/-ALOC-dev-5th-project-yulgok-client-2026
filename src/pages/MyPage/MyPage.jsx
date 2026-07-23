@@ -4,11 +4,11 @@ import { getChatRooms } from '../../api/chat/chat.js';
 import { getMatchingStatus } from '../../api/matching/matching.js';
 import { getUserProfile, updateUserProfile } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import { getProfileImageUrl, PROFILE_IMAGE_BASE_PATH } from '../../utils/profileImage';
 
 const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
 
 const PROFILE_PLACEHOLDER = '프로필 이미지 없음';
-const PROFILE_IMAGE_BASE_PATH = '/images/profile-avatars/';
 const PROFILE_IMAGE_OPTIONS = Array.from({ length: 53 }, (_, index) => ({
   label: `프로필 이미지 ${index + 1}`,
   value: `profile-avatar-${index + 1}.png`,
@@ -83,9 +83,7 @@ function countMatchingStatus(people, status) {
 }
 
 function getProfileImageSrc(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return '';
-  if (profileImageUrl.startsWith('http') || profileImageUrl.startsWith('/')) return profileImageUrl;
-  return `${PROFILE_IMAGE_BASE_PATH}${profileImageUrl}`;
+  return getProfileImageUrl(profileImageUrl, '');
 }
 
 function MenuRow({ label, value, danger = false, onClick }) {

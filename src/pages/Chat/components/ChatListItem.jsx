@@ -1,17 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-
-const fallbackProfileImageUrl = '/favicon.svg';
-
-function isValidProfileImageUrl(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return false;
-
-  try {
-    const url = new URL(profileImageUrl, window.location.origin);
-    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
-  } catch {
-    return false;
-  }
-}
+import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
 
 function formatLastMessageTime(lastMessageTime) {
   if (!lastMessageTime) return '';
@@ -58,9 +46,7 @@ function ChatListItem({
 }) {
   const navigate = useNavigate();
   const normalizedUnreadCount = Number(unreadCount) || 0;
-  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
-    ? partnerProfileImageUrl
-    : fallbackProfileImageUrl;
+  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl);
   const messagePreview = lastMessage || '아직 메시지가 없어요.';
 
   return (
@@ -93,7 +79,7 @@ function ChatListItem({
             src={profileImageUrl}
             alt={`${partnerName} 프로필`}
             onError={(event) => {
-              event.currentTarget.src = fallbackProfileImageUrl;
+              event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
             }}
           />
           {normalizedUnreadCount > 0 && (

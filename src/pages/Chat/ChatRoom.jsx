@@ -88,7 +88,11 @@ function isFinalConfirmedRoom(room) {
 }
 
 function isWaitingForPartnerConfirm(room) {
-  return room?.matchStatus === 'CONFIRM_PENDING';
+  return (
+    room?.matchStatus === 'CONFIRM_PENDING' &&
+    room?.confirmedByMe === true &&
+    room?.canConfirm !== true
+  );
 }
 
 function isTerminatedRoom(room) {
@@ -100,7 +104,8 @@ function isReadOnlyRoom(room) {
 }
 
 function canDecideMatch(room) {
-  return room?.status === 'OPEN' && room?.matchStatus === 'HEART_MATCHED';
+  if (room?.canConfirm === true) return room?.status === 'OPEN';
+  return room?.canConfirm == null && room?.status === 'OPEN' && room?.matchStatus === 'HEART_MATCHED';
 }
 
 function ChatClosedNotice({ contact, contactErrorMessage, isLoadingContact, onShowContact, partnerName }) {
@@ -397,6 +402,8 @@ function ChatRoom() {
       ? {
           ...currentRoom,
           matchStatus: 'FINAL_CONFIRMED',
+          confirmedByMe: true,
+          canConfirm: false,
           status: 'CLOSED',
         }
       : currentRoom));
@@ -435,6 +442,8 @@ function ChatRoom() {
           ? {
               ...currentRoom,
               matchStatus: 'CONFIRM_PENDING',
+              confirmedByMe: true,
+              canConfirm: false,
               status: 'OPEN',
             }
           : currentRoom));
@@ -453,6 +462,8 @@ function ChatRoom() {
               ? {
                   ...currentRoom,
                   matchStatus: 'CONFIRM_PENDING',
+                  confirmedByMe: true,
+                  canConfirm: false,
                   status: 'OPEN',
                 }
               : currentRoom));
@@ -528,6 +539,7 @@ function ChatRoom() {
         ? {
             ...currentRoom,
             matchStatus: 'CLOSED',
+            canConfirm: false,
             status: 'CLOSED',
           }
         : currentRoom));
@@ -579,6 +591,8 @@ function ChatRoom() {
         partnerProfileImageUrl={room.partnerProfileImageUrl}
         roomStatus={room.status}
         matchStatus={room.matchStatus}
+        confirmedByMe={room.confirmedByMe}
+        canConfirm={room.canConfirm}
         onFinalConfirm={shouldShowDecisionActions ? handleOpenFinalConfirm : undefined}
         onReject={shouldShowDecisionActions ? handleOpenRejectConfirm : undefined}
       />

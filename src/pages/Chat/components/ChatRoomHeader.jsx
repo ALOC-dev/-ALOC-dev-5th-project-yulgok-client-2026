@@ -13,8 +13,8 @@ function isValidProfileImageUrl(profileImageUrl) {
   }
 }
 
-function getRoomStatusLabel(roomStatus, matchStatus) {
-  if (matchStatus === 'CONFIRM_PENDING') return '확정 대기';
+function getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm) {
+  if (matchStatus === 'CONFIRM_PENDING' && confirmedByMe === true && canConfirm !== true) return '확정 대기';
   if (
     matchStatus === 'FINAL_CONFIRMED' ||
     matchStatus === 'CLOSED' ||
@@ -24,12 +24,21 @@ function getRoomStatusLabel(roomStatus, matchStatus) {
   return '채팅 중';
 }
 
-function ChatRoomHeader({ partnerName, partnerProfileImageUrl, roomStatus, matchStatus, onFinalConfirm, onReject }) {
+function ChatRoomHeader({
+  partnerName,
+  partnerProfileImageUrl,
+  roomStatus,
+  matchStatus,
+  confirmedByMe,
+  canConfirm,
+  onFinalConfirm,
+  onReject,
+}) {
   const navigate = useNavigate();
   const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
     ? partnerProfileImageUrl
     : fallbackProfileImageUrl;
-  const statusLabel = getRoomStatusLabel(roomStatus, matchStatus);
+  const statusLabel = getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm);
 
   return (
     <header className="flex min-h-18 items-center gap-3 border-b border-[#dce5f1] bg-brand-background px-5 py-3">

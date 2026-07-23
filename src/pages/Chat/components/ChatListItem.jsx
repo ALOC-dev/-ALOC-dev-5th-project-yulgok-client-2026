@@ -53,6 +53,8 @@ function ChatListItem({
   roomId,
   status,
   matchStatus,
+  confirmedByMe,
+  canConfirm,
 }) {
   const navigate = useNavigate();
   const normalizedUnreadCount = Number(unreadCount) || 0;
@@ -79,6 +81,8 @@ function ChatListItem({
               unreadCount: normalizedUnreadCount,
               status,
               matchStatus,
+              confirmedByMe,
+              canConfirm,
             },
           },
         })}

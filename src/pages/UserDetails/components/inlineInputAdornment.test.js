@@ -17,5 +17,6 @@ test('nickname dice uses the optional inline input adornment area', async () => 
     assert.match(inlineInputSource, /absolute inset-y-0 right-1 flex items-center/);
     assert.match(surveySource, /endAdornment=\{/);
     assert.match(surveySource, /aria-label="무작위 닉네임 생성"/);
+    assert.match(surveySource, /<div className="w-48 max-w-full">[\s\S]*?<InlineInput/);
     assert.doesNotMatch(surveySource, /flex items-end gap-2/);
 });

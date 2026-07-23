@@ -41,3 +41,12 @@ test('UserDetails renders the required-fields modal without a footer action', as
   assert.match(source, /<RequiredFieldsModal/);
   assert.ok(validationIndex >= 0 && validationIndex < statusIndex);
 });
+
+test('UserDetails starts age empty so the placeholder is visible', async () => {
+  const source = await readFile(
+    new URL('./UserDetails.jsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(source, /const \[age, setAge\] = useState\(''\)/);
+});

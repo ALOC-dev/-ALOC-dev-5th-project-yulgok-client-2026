@@ -21,7 +21,7 @@ function UserDetails() {
     const navigate = useNavigate();
     const { refreshCurrentUser } = useAuth();
     const [realName, setRealName] = useState('');
-    const [age, setAge] = useState(0);
+    const [age, setAge] = useState('');
     const [gender, setGender] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');    // 전화번호
     const [studentId, setStudentId] = useState('');

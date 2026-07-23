@@ -5,7 +5,7 @@ import { getMatchingStatus } from '../../api/matching/matching.js';
 import { getUserProfile, updateUserProfile } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 
-const OPEN_CHAT_URL = import.meta.env.VITE_OPEN_CHAT_URL || '';
+const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
 
 const PROFILE_PLACEHOLDER = '프로필 이미지 없음';
 const PREPARING_MESSAGE = '이번 버전에서는 준비 중인 기능이에요.';

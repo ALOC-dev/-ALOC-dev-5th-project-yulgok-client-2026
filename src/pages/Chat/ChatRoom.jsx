@@ -84,11 +84,19 @@ function isDocumentVisible() {
 }
 
 function isFinalConfirmedRoom(room) {
-  return room?.matchStatus === 'FINAL_CONFIRMED' || room?.status === 'CLOSED';
+  return room?.matchStatus === 'FINAL_CONFIRMED' || (!room?.matchStatus && room?.status === 'CLOSED');
 }
 
 function isWaitingForPartnerConfirm(room) {
   return room?.matchStatus === 'CONFIRM_PENDING';
+}
+
+function isTerminatedRoom(room) {
+  return room?.matchStatus === 'CLOSED' || room?.matchStatus === 'REJECTED_BY_OTHER';
+}
+
+function isReadOnlyRoom(room) {
+  return isFinalConfirmedRoom(room) || isWaitingForPartnerConfirm(room) || isTerminatedRoom(room);
 }
 
 function canDecideMatch(room) {
@@ -146,6 +154,23 @@ function ChatWaitingNotice() {
   );
 }
 
+function ChatTerminatedNotice({ matchStatus }) {
+  const isRejectedByOther = matchStatus === 'REJECTED_BY_OTHER';
+
+  return (
+    <div className="border-t border-[#dce5f1] bg-white px-4 py-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+      <div className="rounded-2xl bg-[#f1f4f8] px-4 py-3 text-center">
+        <p className="text-sm font-extrabold text-fg-primary">
+          {isRejectedByOther ? '상대방이 매칭을 거절했어요.' : '채팅이 종료됐어요.'}
+        </p>
+        <p className="mt-1 text-xs font-semibold text-fg-basic-muted">
+          더 이상 메시지를 보낼 수 없습니다.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ChatRoom() {
   const { roomId: roomIdParam } = useParams();
   const location = useLocation();
@@ -174,7 +199,7 @@ function ChatRoom() {
   const contactRequestKeyRef = useRef('');
 
   const markRoomAsReadSoon = useCallback(() => {
-    if (!currentUserId || isFinalConfirmedRoom(room) || !isDocumentVisible()) return;
+    if (!currentUserId || isReadOnlyRoom(room) || !isDocumentVisible()) return;
 
     window.clearTimeout(readTimerRef.current);
     readTimerRef.current = window.setTimeout(() => {
@@ -251,7 +276,7 @@ function ChatRoom() {
   }, [passedRoom, roomId]);
 
   useEffect(() => {
-    if (!room || !currentUserId || isFinalConfirmedRoom(room) || !isDocumentVisible()) return;
+    if (!room || !currentUserId || isReadOnlyRoom(room) || !isDocumentVisible()) return;
     markRoomAsReadSoon();
   }, [currentUserId, markRoomAsReadSoon, room]);
 
@@ -285,7 +310,7 @@ function ChatRoom() {
     if (!isConnected || !room || !currentUserId) return undefined;
 
     const readStatusSyncTimer = window.setInterval(() => {
-      if (isFinalConfirmedRoom(room) || !isDocumentVisible()) return;
+      if (isReadOnlyRoom(room) || !isDocumentVisible()) return;
 
       syncLatestMessages().catch((error) => {
         console.info('메시지 읽음 상태를 동기화하지 못했습니다.', error);
@@ -406,6 +431,13 @@ function ChatRoom() {
       await showConfirmedContact(receiverId);
     } catch (error) {
       if (error?.response?.status === 403) {
+        setRoom((currentRoom) => (currentRoom
+          ? {
+              ...currentRoom,
+              matchStatus: 'CONFIRM_PENDING',
+              status: 'OPEN',
+            }
+          : currentRoom));
         setConfirmErrorMessage('상대방도 최종확정을 완료하면 연락처가 공개됩니다.');
         setConfirmModalStep('waiting');
         return;
@@ -417,6 +449,13 @@ function ChatRoom() {
           return;
         } catch (contactError) {
           if (contactError?.response?.status === 403) {
+            setRoom((currentRoom) => (currentRoom
+              ? {
+                  ...currentRoom,
+                  matchStatus: 'CONFIRM_PENDING',
+                  status: 'OPEN',
+                }
+              : currentRoom));
             setConfirmErrorMessage('상대방도 최종확정을 완료하면 연락처가 공개됩니다.');
             setConfirmModalStep('waiting');
             return;
@@ -511,7 +550,8 @@ function ChatRoom() {
   const shouldShowDecisionActions = canDecideMatch(room);
   const shouldShowWaitingNotice = isWaitingForPartnerConfirm(room);
   const shouldShowClosedNotice = isFinalConfirmedRoom(room);
-  const isInputDisabled = shouldShowClosedNotice || shouldShowWaitingNotice || !isConnected;
+  const shouldShowTerminatedNotice = isTerminatedRoom(room);
+  const isInputDisabled = shouldShowClosedNotice || shouldShowWaitingNotice || shouldShowTerminatedNotice || !isConnected;
 
   if (isLoading) {
     return (
@@ -583,6 +623,8 @@ function ChatRoom() {
         />
       ) : shouldShowWaitingNotice ? (
         <ChatWaitingNotice />
+      ) : shouldShowTerminatedNotice ? (
+        <ChatTerminatedNotice matchStatus={room.matchStatus} />
       ) : (
         <MessageInput
           disabled={isInputDisabled}

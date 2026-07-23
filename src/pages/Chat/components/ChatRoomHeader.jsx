@@ -15,7 +15,12 @@ function isValidProfileImageUrl(profileImageUrl) {
 
 function getRoomStatusLabel(roomStatus, matchStatus) {
   if (matchStatus === 'CONFIRM_PENDING') return '확정 대기';
-  if (matchStatus === 'FINAL_CONFIRMED' || roomStatus === 'CLOSED') return '종료된 채팅';
+  if (
+    matchStatus === 'FINAL_CONFIRMED' ||
+    matchStatus === 'CLOSED' ||
+    matchStatus === 'REJECTED_BY_OTHER' ||
+    roomStatus === 'CLOSED'
+  ) return '종료된 채팅';
   return '채팅 중';
 }
 

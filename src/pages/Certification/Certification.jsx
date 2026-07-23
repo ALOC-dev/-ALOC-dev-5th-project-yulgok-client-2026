@@ -6,31 +6,27 @@ import { useNavigate } from "react-router-dom";
 import { certificate, getUploadUrl, uploadCertificationImage } from "../../api/certification/certifications.js";
 import { submitCertificationImage } from "../../api/certification/certificationFlow.js";
 import { useAuth } from "../../auth/AuthContext.jsx";
-import { canAccessCertifiedRoutes } from "../../auth/certificationAccess.js";
-
-function getRequestStorageKey(userId) {
-    return `certification-requested:${userId ?? 'current'}`;
-}
+import { canAccessCertifiedRoutes } from "../../auth/serviceFlow.js";
 
 function Certification() {
     const navigate = useNavigate();
     const { currentUser, refreshCurrentUser } = useAuth();
     const [certificateImage, setCertificateImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState("");
-    const [requestedStorageKey, setRequestedStorageKey] = useState(null);
+    const [requestedThisSession, setRequestedThisSession] = useState(false);
     const [isWorking, setIsWorking] = useState(false);
     const [message, setMessage] = useState("");
     const previewUrlRef = useRef("");
-    const currentRequestStorageKey = getRequestStorageKey(currentUser?.id);
-    const isRequested = requestedStorageKey === currentRequestStorageKey
-        || localStorage.getItem(currentRequestStorageKey) === 'true';
+    const certificationStatus = currentUser?.certificationStatus;
+    const isRequested =
+        certificationStatus === 'REQUESTED' || requestedThisSession;
+    const isRejected = certificationStatus === 'REJECTED';
 
     useEffect(() => {
-        if (canAccessCertifiedRoutes(currentUser?.status)) {
-            localStorage.removeItem(getRequestStorageKey(currentUser?.id));
+        if (canAccessCertifiedRoutes(currentUser)) {
             navigate('/matching', { replace: true });
         }
-    }, [currentUser?.id, currentUser?.status, navigate]);
+    }, [currentUser, navigate]);
 
     useEffect(() => {
         return () => {
@@ -63,9 +59,11 @@ function Certification() {
             if (isRequested) {
                 const user = await refreshCurrentUser();
 
-                if (canAccessCertifiedRoutes(user?.status)) {
-                    localStorage.removeItem(getRequestStorageKey(user?.id));
+                if (canAccessCertifiedRoutes(user)) {
                     navigate('/matching', { replace: true });
+                } else if (user?.certificationStatus === 'REJECTED') {
+                    setRequestedThisSession(false);
+                    setMessage('인증이 반려됐어요. 사진을 확인한 뒤 다시 요청해주세요.');
                 } else {
                     setMessage('아직 관리자가 인증을 검토하고 있어요.');
                 }
@@ -80,9 +78,14 @@ function Certification() {
                 certificate,
             });
 
-            localStorage.setItem(currentRequestStorageKey, 'true');
-            setRequestedStorageKey(currentRequestStorageKey);
-            setMessage('인증 요청을 보냈어요. 관리자 승인 후 인증 확인을 눌러주세요.');
+            setRequestedThisSession(true);
+            const user = await refreshCurrentUser();
+
+            if (canAccessCertifiedRoutes(user)) {
+                navigate('/matching', { replace: true });
+            } else {
+                setMessage('인증 요청을 보냈어요. 관리자 승인 후 인증 확인을 눌러주세요.');
+            }
         } catch (error) {
             console.error('기숙사 인증 요청 실패', error);
             setMessage(error?.message || '인증 요청 중 문제가 발생했어요. 다시 시도해주세요.');
@@ -132,7 +135,15 @@ function Certification() {
                 prev="/surveys/introduce"
                 onSubmit={handleSubmit}
                 disabled={isWorking || (!isRequested && !certificateImage)}
-                label={isWorking ? '확인 중...' : isRequested ? '인증 확인' : '인증 요청 보내기'}
+                label={
+                    isWorking
+                        ? '확인 중...'
+                        : isRequested
+                            ? '인증 확인'
+                            : isRejected
+                                ? '다시 인증 요청하기'
+                                : '인증 요청 보내기'
+                }
             />
         </main>
     );

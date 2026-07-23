@@ -33,8 +33,11 @@ test('UserDetails renders the required-fields modal without a footer action', as
     new URL('./UserDetails.jsx', import.meta.url),
     'utf8',
   );
+  const validationIndex = source.indexOf('hasMissingUserDetails(requestBody)');
+  const statusIndex = source.indexOf('await refreshCurrentUser()');
 
   assert.match(source, /hasMissingUserDetails\(requestBody\)/);
   assert.match(source, /isBadRequest\(error\)/);
   assert.match(source, /<RequiredFieldsModal/);
+  assert.ok(validationIndex >= 0 && validationIndex < statusIndex);
 });

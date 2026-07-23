@@ -5,6 +5,11 @@ export async function postUserDetails(requestBody) {
     return response.data;
 }
 
+export async function patchUserDetails(requestBody) {
+    const response = await apiClient.patch('/api/users/details', requestBody);
+    return response.data;
+}
+
 export async function changeNickname(nickname) {
     const response = await apiClient.patch('/api/users/me', {nickname});
     return response.data?.data?.nickname;

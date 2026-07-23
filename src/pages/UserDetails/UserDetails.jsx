@@ -5,9 +5,13 @@ import InlineInput from './components/InlineInput.jsx';
 import RadioBtnGroup from '../../components/RadioBtnGroup.jsx';
 import DropDownMenu from './components/DropDownMenu.jsx';
 import MoveBtnGroup from '../../components/MoveBtnGroup.jsx';
-import { postUserDetails } from '../../api/users/users.js';
+import {
+    patchUserDetails,
+    postUserDetails,
+} from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
+import { getUserDetailsSubmitter } from './userDetailsSubmit.js';
 import {
     hasMissingUserDetails,
     isBadRequest,
@@ -40,9 +44,18 @@ function UserDetails() {
         }
 
         try {
-            const responseBody = await postUserDetails(requestBody);
+            const currentUser = await refreshCurrentUser();
+            const submitUserDetails = getUserDetailsSubmitter(currentUser?.role, {
+                patchUserDetails,
+                postUserDetails,
+            });
+            const responseBody = await submitUserDetails(requestBody);
             console.log(responseBody.message);
-            await refreshCurrentUser();
+
+            if (currentUser?.role === 'GUEST') {
+                await refreshCurrentUser();
+            }
+
             navigate('/surveys/sleep');
         } catch (error) {
             if (isBadRequest(error)) {

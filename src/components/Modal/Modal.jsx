@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef } from 'react';
+import { Children, isValidElement, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import ModalFooter from './ModalFooter.jsx';
 
 const sizeClasses = {
   small: 'max-w-sm',
@@ -34,6 +35,13 @@ function Modal({
   const titleId = useId();
   const descriptionId = useId();
   const sizeClass = sizeClasses[size] ?? sizeClasses.medium;
+  const childArray = Children.toArray(children);
+  const footerChildren = childArray.filter(
+    (child) => isValidElement(child) && child.type === ModalFooter,
+  );
+  const bodyChildren = childArray.filter(
+    (child) => !isValidElement(child) || child.type !== ModalFooter,
+  );
 
   useEffect(() => {
     if (!open) return undefined;
@@ -139,8 +147,9 @@ function Modal({
         )}
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 sm:px-6">
-          {children}
+          {bodyChildren}
         </div>
+        {footerChildren}
       </section>
     </div>,
     document.body,

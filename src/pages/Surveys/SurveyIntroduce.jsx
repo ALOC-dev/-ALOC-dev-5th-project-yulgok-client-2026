@@ -106,12 +106,14 @@ function SurveyIntroduce() {
                             placeholder="닉네임 입력"
                             autoComplete="nickname"
                             maxLength={8}
+                            labelStyle="block text-sm font-sans font-bold text-fg-basic"
+                            inputStyle="h-[37px] !py-0"
                             onChange={setNickname}
                         />
                     </div>
                     <button
                         type="button"
-                        className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-input bg-white text-xl shadow-sm transition-colors hover:bg-ui-sub focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        className="flex h-[37px] w-[46px] shrink-0 items-center justify-center rounded-input bg-white text-xl shadow-sm transition-colors hover:bg-ui-sub focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         aria-label="무작위 닉네임 생성"
                         onClick={() => setNickname(generateRandomNickname())}
                     >

@@ -10,6 +10,8 @@ function InlineInput({
     placeholder,
     autoComplete,
     maxLength,
+    labelStyle,
+    inputStyle = "",
     required=true,
     disabled,
     onChange,
@@ -21,7 +23,7 @@ function InlineInput({
         <div className="flex flex-col">
             <label 
                 htmlFor={inputId}
-                className="font-heading font-semibold text-xs text-fg-basic-muted"
+                className={labelStyle || "font-heading font-semibold text-xs text-fg-basic-muted"}
             >
                 {label}
             </label>
@@ -36,7 +38,7 @@ function InlineInput({
                 required={required}
                 disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}  // 부모 컴포넌트는 input 변경 시 실행할 함수만 전달하면 됨
-                className="mt-2 w-full rounded-input border border-white bg-white px-4 py-3 font-heading text-sm text-fg-basic shadow-sm outline-none placeholder:text-fg-basic-muted focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:bg-ui-sub"
+                className={`mt-2 w-full rounded-input border border-white bg-white px-4 py-3 font-heading text-sm text-fg-basic shadow-sm outline-none placeholder:text-fg-basic-muted focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:bg-ui-sub ${inputStyle}`}
             />
         </div>
     );

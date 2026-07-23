@@ -13,11 +13,18 @@ function isValidProfileImageUrl(profileImageUrl) {
   }
 }
 
-function ChatRoomHeader({ partnerName, partnerProfileImageUrl, roomStatus, onFinalConfirm, onReject }) {
+function getRoomStatusLabel(roomStatus, matchStatus) {
+  if (matchStatus === 'CONFIRM_PENDING') return '확정 대기';
+  if (matchStatus === 'FINAL_CONFIRMED' || roomStatus === 'CLOSED') return '종료된 채팅';
+  return '채팅 중';
+}
+
+function ChatRoomHeader({ partnerName, partnerProfileImageUrl, roomStatus, matchStatus, onFinalConfirm, onReject }) {
   const navigate = useNavigate();
   const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
     ? partnerProfileImageUrl
     : fallbackProfileImageUrl;
+  const statusLabel = getRoomStatusLabel(roomStatus, matchStatus);
 
   return (
     <header className="flex min-h-18 items-center gap-3 border-b border-[#dce5f1] bg-brand-background px-5 py-3">
@@ -45,10 +52,10 @@ function ChatRoomHeader({ partnerName, partnerProfileImageUrl, roomStatus, onFin
         <h1 className="truncate text-sm font-extrabold text-fg-primary">{partnerName}</h1>
         <span
           className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-extrabold text-white ${
-            roomStatus === 'CLOSED' ? 'bg-fg-basic-muted' : 'bg-[#7c32df]'
+            statusLabel === '채팅 중' ? 'bg-[#7c32df]' : 'bg-fg-basic-muted'
           }`}
         >
-          {roomStatus === 'CLOSED' ? '종료된 채팅' : '채팅 중'}
+          {statusLabel}
         </span>
       </div>
 

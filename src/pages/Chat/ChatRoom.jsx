@@ -83,6 +83,18 @@ function isDocumentVisible() {
   return typeof document === 'undefined' || document.visibilityState === 'visible';
 }
 
+function isFinalConfirmedRoom(room) {
+  return room?.matchStatus === 'FINAL_CONFIRMED' || room?.status === 'CLOSED';
+}
+
+function isWaitingForPartnerConfirm(room) {
+  return room?.matchStatus === 'CONFIRM_PENDING';
+}
+
+function canDecideMatch(room) {
+  return room?.status === 'OPEN' && room?.matchStatus === 'HEART_MATCHED';
+}
+
 function ChatClosedNotice({ contact, contactErrorMessage, isLoadingContact, onShowContact, partnerName }) {
   return (
     <div className="border-t border-[#dce5f1] bg-white px-4 py-4 pb-[max(16px,env(safe-area-inset-bottom))]">
@@ -121,6 +133,19 @@ function ChatClosedNotice({ contact, contactErrorMessage, isLoadingContact, onSh
   );
 }
 
+function ChatWaitingNotice() {
+  return (
+    <div className="border-t border-[#dce5f1] bg-white px-4 py-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+      <div className="rounded-2xl bg-[#fff7df] px-4 py-3 text-center">
+        <p className="text-sm font-extrabold text-fg-primary">상대방 확정 대기중이에요.</p>
+        <p className="mt-1 text-xs font-semibold text-[#8b6200]">
+          상대방도 최종확정을 완료하면 연락처가 공개됩니다.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ChatRoom() {
   const { roomId: roomIdParam } = useParams();
   const location = useLocation();
@@ -149,7 +174,7 @@ function ChatRoom() {
   const contactRequestKeyRef = useRef('');
 
   const markRoomAsReadSoon = useCallback(() => {
-    if (!currentUserId || room?.status === 'CLOSED' || !isDocumentVisible()) return;
+    if (!currentUserId || isFinalConfirmedRoom(room) || !isDocumentVisible()) return;
 
     window.clearTimeout(readTimerRef.current);
     readTimerRef.current = window.setTimeout(() => {
@@ -164,7 +189,7 @@ function ChatRoom() {
           console.info('메시지 읽음 처리를 완료하지 못했습니다.', error);
         });
     }, 1200);
-  }, [currentUserId, refreshTotalUnreadCount, room?.status, roomId]);
+  }, [currentUserId, refreshTotalUnreadCount, room, roomId]);
 
   const syncLatestMessages = useCallback(async () => {
     const result = await getChatMessages(roomId);
@@ -226,7 +251,7 @@ function ChatRoom() {
   }, [passedRoom, roomId]);
 
   useEffect(() => {
-    if (!room || !currentUserId || room.status === 'CLOSED' || !isDocumentVisible()) return;
+    if (!room || !currentUserId || isFinalConfirmedRoom(room) || !isDocumentVisible()) return;
     markRoomAsReadSoon();
   }, [currentUserId, markRoomAsReadSoon, room]);
 
@@ -260,7 +285,7 @@ function ChatRoom() {
     if (!isConnected || !room || !currentUserId) return undefined;
 
     const readStatusSyncTimer = window.setInterval(() => {
-      if (room.status === 'CLOSED' || !isDocumentVisible()) return;
+      if (isFinalConfirmedRoom(room) || !isDocumentVisible()) return;
 
       syncLatestMessages().catch((error) => {
         console.info('메시지 읽음 상태를 동기화하지 못했습니다.', error);
@@ -346,6 +371,7 @@ function ChatRoom() {
     setRoom((currentRoom) => (currentRoom
       ? {
           ...currentRoom,
+          matchStatus: 'FINAL_CONFIRMED',
           status: 'CLOSED',
         }
       : currentRoom));
@@ -406,7 +432,7 @@ function ChatRoom() {
 
   useEffect(() => {
     const receiverId = getReceiverId(room);
-    if (room?.status !== 'CLOSED' || !receiverId || confirmedContact) return undefined;
+    if (!isFinalConfirmedRoom(room) || !receiverId || confirmedContact) return undefined;
 
     const requestKey = `${roomId}:${receiverId}`;
     if (contactRequestKeyRef.current === requestKey) return undefined;
@@ -462,6 +488,7 @@ function ChatRoom() {
       setRoom((currentRoom) => (currentRoom
         ? {
             ...currentRoom,
+            matchStatus: 'CLOSED',
             status: 'CLOSED',
           }
         : currentRoom));
@@ -481,7 +508,10 @@ function ChatRoom() {
     return `${formatMatchedDate(room.matchedAt)}에 서로 매칭되었어요${percentage}`;
   }, [room]);
 
-  const isInputDisabled = room?.status === 'CLOSED' || !isConnected;
+  const shouldShowDecisionActions = canDecideMatch(room);
+  const shouldShowWaitingNotice = isWaitingForPartnerConfirm(room);
+  const shouldShowClosedNotice = isFinalConfirmedRoom(room);
+  const isInputDisabled = shouldShowClosedNotice || shouldShowWaitingNotice || !isConnected;
 
   if (isLoading) {
     return (
@@ -508,8 +538,9 @@ function ChatRoom() {
         partnerName={room.partnerName}
         partnerProfileImageUrl={room.partnerProfileImageUrl}
         roomStatus={room.status}
-        onFinalConfirm={room.status === 'OPEN' ? handleOpenFinalConfirm : undefined}
-        onReject={room.status === 'OPEN' ? handleOpenRejectConfirm : undefined}
+        matchStatus={room.matchStatus}
+        onFinalConfirm={shouldShowDecisionActions ? handleOpenFinalConfirm : undefined}
+        onReject={shouldShowDecisionActions ? handleOpenRejectConfirm : undefined}
       />
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -542,7 +573,7 @@ function ChatRoom() {
           {sendNotice}
         </p>
       )}
-      {room.status === 'CLOSED' ? (
+      {shouldShowClosedNotice ? (
         <ChatClosedNotice
           contact={confirmedContact}
           contactErrorMessage={contactErrorMessage}
@@ -550,6 +581,8 @@ function ChatRoom() {
           onShowContact={handleShowContact}
           partnerName={room.partnerName}
         />
+      ) : shouldShowWaitingNotice ? (
+        <ChatWaitingNotice />
       ) : (
         <MessageInput
           disabled={isInputDisabled}

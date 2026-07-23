@@ -16,6 +16,11 @@ import {
 import { getSurveyErrorMessage, postSurveys } from '../../api/surveys/surveys.js';
 import { changeNickname } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
+import {
+    hasMissingSurveyIntroduceFields,
+    isSurveyBadRequest,
+} from './surveyIntroduceValidation.js';
 
 function SurveyIntroduce() {
     const navigate = useNavigate();
@@ -25,6 +30,7 @@ function SurveyIntroduce() {
     const [visibleProfileFields, setVisibleProfileFields] = useState(() => loadSurveyDraft().visibleProfileFields ?? []);
     const [errorMessage, setErrorMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
 
     useEffect(() => {
         saveSurveyDraft({ introduce, visibleProfileFields });
@@ -33,24 +39,17 @@ function SurveyIntroduce() {
     async function handleNext() {
         if (isSubmitting) return;
 
-        if (!nickname.trim()) {
-            setErrorMessage('닉네임을 입력해주세요.');
+        if (hasMissingSurveyIntroduceFields({ nickname, introduce, visibleProfileFields })) {
+            setErrorMessage('');
+            setShowRequiredFieldsModal(true);
             return;
         }
         if (nickname.trim().length > 8) {
             setErrorMessage('닉네임은 8자 이하로 입력해주세요.');
             return;
         }
-        if (!introduce.trim()) {
-            setErrorMessage('자기소개를 입력해주세요.');
-            return;
-        }
         if (introduce.trim().length > 200) {
             setErrorMessage('자기소개는 200자 이하로 입력해주세요.');
-            return;
-        }
-        if (visibleProfileFields.length < 1) {
-            setErrorMessage('중요하게 생각하는 항목을 최소 1개 선택해주세요.');
             return;
         }
 
@@ -58,8 +57,8 @@ function SurveyIntroduce() {
         const incompletePagePath = getFirstIncompleteSurveyPath(draft);
 
         if (incompletePagePath) {
-            setErrorMessage('입력하지 않은 설문 항목이 있어요. 해당 페이지로 이동합니다.');
-            navigate(incompletePagePath);
+            setErrorMessage('');
+            setShowRequiredFieldsModal(true);
             return;
         }
 
@@ -75,6 +74,12 @@ function SurveyIntroduce() {
             navigate('/certification');
         } catch (error) {
             console.error('설문 제출에 실패했습니다.', error);
+            if (isSurveyBadRequest(error)) {
+                setErrorMessage('');
+                setShowRequiredFieldsModal(true);
+                return;
+            }
+
             setErrorMessage(getSurveyErrorMessage(error));
         } finally {
             setIsSubmitting(false);
@@ -164,6 +169,10 @@ function SurveyIntroduce() {
                     nextLabel={isSubmitting ? '제출 중...' : '다음'}
                 />
             </div>
+            <RequiredFieldsModal
+                open={showRequiredFieldsModal}
+                onClose={() => setShowRequiredFieldsModal(false)}
+            />
         </main>
     );
 }

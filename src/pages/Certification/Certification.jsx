@@ -8,6 +8,10 @@ import { submitCertificationImage } from "../../api/certification/certificationF
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { canAccessCertifiedRoutes } from "../../auth/serviceFlow.js";
 
+function isCertificationEligible(user) {
+    return user?.role === 'USER' && user?.surveyCompleted === true;
+}
+
 function Certification() {
     const navigate = useNavigate();
     const { currentUser, refreshCurrentUser } = useAuth();
@@ -17,7 +21,9 @@ function Certification() {
     const [isWorking, setIsWorking] = useState(false);
     const [message, setMessage] = useState("");
     const previewUrlRef = useRef("");
-    const certificationStatus = currentUser?.certificationStatus;
+    const certificationStatus = isCertificationEligible(currentUser)
+        ? currentUser?.certificationStatus
+        : undefined;
     const isRequested =
         certificationStatus === 'REQUESTED' || requestedThisSession;
     const isRejected = certificationStatus === 'REJECTED';
@@ -61,7 +67,10 @@ function Certification() {
 
                 if (canAccessCertifiedRoutes(user)) {
                     navigate('/matching', { replace: true });
-                } else if (user?.certificationStatus === 'REJECTED') {
+                } else if (
+                    isCertificationEligible(user)
+                    && user.certificationStatus === 'REJECTED'
+                ) {
                     setRequestedThisSession(false);
                     setMessage('인증이 반려됐어요. 사진을 확인한 뒤 다시 요청해주세요.');
                 } else {
@@ -79,12 +88,16 @@ function Certification() {
             });
 
             setRequestedThisSession(true);
-            const user = await refreshCurrentUser();
+            setMessage('인증 요청을 보냈어요. 관리자 승인 후 인증 확인을 눌러주세요.');
 
-            if (canAccessCertifiedRoutes(user)) {
-                navigate('/matching', { replace: true });
-            } else {
-                setMessage('인증 요청을 보냈어요. 관리자 승인 후 인증 확인을 눌러주세요.');
+            try {
+                const user = await refreshCurrentUser();
+
+                if (canAccessCertifiedRoutes(user)) {
+                    navigate('/matching', { replace: true });
+                }
+            } catch (refreshError) {
+                console.error('인증 상태 새로고침 실패', refreshError);
             }
         } catch (error) {
             console.error('기숙사 인증 요청 실패', error);

@@ -18,7 +18,7 @@ function RadioBtnGroup({items = [], label, value: selectedValue, onChange, class
                                 onChange?.(value);
                             }}
                             className={[
-                                "w-full min-w-0 rounded-select border px-4 py-3 font-sans text-xs font-bold transition-transform active:scale-95",
+                                "w-full min-w-0 rounded-select border-2 px-4 py-3 font-sans text-xs font-bold transition-transform active:scale-95",
                                 isSelected
                                 ? "border-brand-primary bg-white text-brand-primary"
                                 : "border-transparent bg-white text-fg-basic"

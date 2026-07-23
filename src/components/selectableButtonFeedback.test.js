@@ -12,6 +12,7 @@ test('selection buttons use outlined brand styling, a decorative check, and pres
         const source = await readFile(componentPath, 'utf8');
 
         assert.match(source, /border-brand-primary bg-white text-brand-primary/);
+        assert.match(source, /rounded-select border-2/);
         assert.match(source, /aria-hidden="true">✓/);
         assert.match(source, /transition-transform/);
         assert.match(source, /active:scale-95/);

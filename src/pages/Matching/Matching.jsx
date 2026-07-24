@@ -142,12 +142,12 @@ function Matching() {
         closeOnEscape={false}
         showCloseButton={false}
       >
-        <div className="space-y-3 text-sm font-medium leading-6 text-fg-basic-muted">
+        <div className="space-y-3 text-sm font-medium leading-6 text-fg-basic">
           <p className="m-0">
             매칭 결과와 채팅은 룸메이트 선택을 돕기 위한 참고 정보이며, 최종 기숙사 룸메이트
             신청은 학교 안내에 따라 별도로 진행해야 합니다.
           </p>
-          <p className="m-0 font-bold text-fg-basic">
+          <p className="m-0 mt-4 font-bold text-fg-error">
             이에 따른 책임은 본인에게 있습니다.
           </p>
         </div>

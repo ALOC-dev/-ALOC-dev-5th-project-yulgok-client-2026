@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Slider from './components/Slider';
 import ProgressBar from '../../components/ProgressBar';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
+import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { getSurveyPath, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveySleep() {

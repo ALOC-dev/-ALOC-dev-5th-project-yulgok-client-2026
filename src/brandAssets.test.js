@@ -46,3 +46,24 @@ test('login shows the service logo without replacing the school watermark', asyn
     assert.match(login, /src="\/uos_logo\.svg"/);
     assert.doesNotMatch(login, /<img src="" /);
 });
+
+test('chat profiles use a neutral avatar instead of the service favicon', async () => {
+    const chatComponentPaths = [
+        'src/pages/Chat/components/ChatListItem.jsx',
+        'src/pages/Chat/components/ChatRoomHeader.jsx',
+        'src/pages/Chat/components/MessageItem.jsx',
+    ];
+    const [profileAvatar, ...chatSources] = await Promise.all([
+        readFile(projectFile('src/pages/Chat/components/ProfileAvatar.jsx'), 'utf8').catch(() => ''),
+        ...chatComponentPaths.map((path) => readFile(projectFile(path), 'utf8')),
+    ]);
+
+    assert.match(profileAvatar, /function ProfileAvatar/);
+    assert.match(profileAvatar, /onError=\{\(\) => setHasImageError\(true\)\}/);
+    assert.match(profileAvatar, /aria-hidden="true"/);
+
+    for (const source of chatSources) {
+        assert.doesNotMatch(source, /\/favicon\.svg/);
+        assert.match(source, /<ProfileAvatar/);
+    }
+});

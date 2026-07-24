@@ -1,15 +1,4 @@
-const fallbackProfileImageUrl = '/favicon.svg';
-
-function isValidProfileImageUrl(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return false;
-
-  try {
-    const url = new URL(profileImageUrl, window.location.origin);
-    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
-  } catch {
-    return false;
-  }
-}
+import ProfileAvatar from './ProfileAvatar.jsx';
 
 function formatMessageTime(createdAt) {
   const date = new Date(createdAt);
@@ -30,9 +19,6 @@ function MessageItem({
   partnerName,
   partnerProfileImageUrl,
 }) {
-  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
-    ? partnerProfileImageUrl
-    : fallbackProfileImageUrl;
   const showUnreadMark = isMine && !message.isRead;
   const showMineMeta = isMine && (showUnreadMark || showTime);
 
@@ -41,13 +27,10 @@ function MessageItem({
       {!isMine && (
         <div className="w-8 shrink-0 self-start">
           {showProfile && (
-            <img
+            <ProfileAvatar
               className="h-8 w-8 rounded-full bg-ui-sub object-cover"
-              src={profileImageUrl}
+              imageUrl={partnerProfileImageUrl}
               alt={`${partnerName} 프로필`}
-              onError={(event) => {
-                event.currentTarget.src = fallbackProfileImageUrl;
-              }}
             />
           )}
         </div>

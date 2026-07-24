@@ -1,17 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-
-const fallbackProfileImageUrl = '/favicon.svg';
-
-function isValidProfileImageUrl(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return false;
-
-  try {
-    const url = new URL(profileImageUrl, window.location.origin);
-    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
-  } catch {
-    return false;
-  }
-}
+import ProfileAvatar from './ProfileAvatar.jsx';
 
 function getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm) {
   if (matchStatus === 'CONFIRM_PENDING' && confirmedByMe === true && canConfirm !== true) return '확정 대기';
@@ -35,9 +23,6 @@ function ChatRoomHeader({
   onReject,
 }) {
   const navigate = useNavigate();
-  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
-    ? partnerProfileImageUrl
-    : fallbackProfileImageUrl;
   const statusLabel = getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm);
 
   return (
@@ -53,13 +38,10 @@ function ChatRoomHeader({
         </svg>
       </button>
 
-      <img
+      <ProfileAvatar
         className="h-10 w-10 shrink-0 rounded-full bg-ui-sub object-cover"
-        src={profileImageUrl}
+        imageUrl={partnerProfileImageUrl}
         alt={`${partnerName} 프로필`}
-        onError={(event) => {
-          event.currentTarget.src = fallbackProfileImageUrl;
-        }}
       />
 
       <div className="flex min-w-0 flex-1 items-center gap-2">

@@ -19,3 +19,8 @@ export async function updateUserProfile(requestBody) {
     const response = await apiClient.patch('/api/users/me', requestBody);
     return response.data?.data ?? null;
 }
+
+export async function deleteMyAccount() {
+    const response = await apiClient.delete('/api/users/me');
+    return response.data;
+}

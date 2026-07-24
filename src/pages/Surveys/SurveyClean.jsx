@@ -4,6 +4,7 @@ import ProgressBar from '../../components/ProgressBar';
 import Slider from './components/Slider';
 import RadioBtnGroup from '../../components/RadioBtnGroup';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
+import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { getSurveyPath, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyClean() {

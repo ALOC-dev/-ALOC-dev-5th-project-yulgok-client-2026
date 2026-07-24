@@ -1,19 +1,42 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getChatErrorMessage, getChatRooms } from '../../api/chat/chat.js';
+import { getMatchingStatus } from '../../api/matching/matching.js';
 import { chatNotificationEventName } from './chatNotificationEvents.js';
 import ChatList from './components/ChatList.jsx';
+
+const EMPTY_NOTICE_TYPES = Object.freeze({
+  DEFAULT: 'DEFAULT',
+  BEFORE_MATCHING: 'BEFORE_MATCHING',
+});
+
+async function getEmptyNoticeType(rooms) {
+  if (rooms.length > 0) return EMPTY_NOTICE_TYPES.DEFAULT;
+
+  try {
+    await getMatchingStatus();
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      return EMPTY_NOTICE_TYPES.BEFORE_MATCHING;
+    }
+  }
+
+  return EMPTY_NOTICE_TYPES.DEFAULT;
+}
 
 function Chat() {
   const [chatRooms, setChatRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [emptyNoticeType, setEmptyNoticeType] = useState(EMPTY_NOTICE_TYPES.DEFAULT);
 
   const loadChatRooms = useCallback(async ({ showLoading = false } = {}) => {
     try {
       if (showLoading) setIsLoading(true);
       setErrorMessage('');
       const rooms = await getChatRooms();
+      const nextEmptyNoticeType = await getEmptyNoticeType(rooms);
       setChatRooms(rooms);
+      setEmptyNoticeType(nextEmptyNoticeType);
     } catch (error) {
       console.error('채팅방 목록을 불러오지 못했습니다.', error);
       setErrorMessage(getChatErrorMessage(error, '채팅방 목록을 불러오지 못했어요.'));
@@ -30,9 +53,11 @@ function Chat() {
         setIsLoading(true);
         setErrorMessage('');
         const rooms = await getChatRooms();
+        const nextEmptyNoticeType = await getEmptyNoticeType(rooms);
 
         if (isMounted) {
           setChatRooms(rooms);
+          setEmptyNoticeType(nextEmptyNoticeType);
         }
       } catch (error) {
         console.error('채팅방 목록을 불러오지 못했습니다.', error);
@@ -88,7 +113,23 @@ function Chat() {
         )}
 
         {!isLoading && !errorMessage && chatRooms.length === 0 && (
-          <p className="py-20 text-center text-sm text-fg-basic-muted">아직 만들어진 채팅방이 없어요.</p>
+          <div className="mx-auto mt-24 max-w-[320px] rounded-2xl bg-white px-5 py-6 text-center shadow-sm">
+            {emptyNoticeType === EMPTY_NOTICE_TYPES.BEFORE_MATCHING ? (
+              <>
+                <p className="font-heading text-base font-extrabold text-fg-primary">매칭이 시작되면 채팅방이 열려요.</p>
+                <p className="mt-2 text-sm leading-6 text-fg-basic-muted">
+                  매칭 날짜 전에는 아직 채팅방이 만들어지지 않아요. 매칭이 시작된 뒤 서로 하트를 보내면 채팅할 수 있어요.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-heading text-base font-extrabold text-fg-primary">아직 만들어진 채팅방이 없어요.</p>
+                <p className="mt-2 text-sm leading-6 text-fg-basic-muted">
+                  서로 하트를 주고받으면 이곳에 채팅방이 표시돼요.
+                </p>
+              </>
+            )}
+          </div>
         )}
 
         {!isLoading && !errorMessage && chatRooms.length > 0 && <ChatList chatRooms={chatRooms} />}

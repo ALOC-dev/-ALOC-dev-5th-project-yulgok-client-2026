@@ -59,7 +59,9 @@ test('chat profiles use a neutral avatar instead of the service favicon', async 
     ]);
 
     assert.match(profileAvatar, /function ProfileAvatar/);
-    assert.match(profileAvatar, /onError=\{\(\) => setHasImageError\(true\)\}/);
+    assert.match(profileAvatar, /setFailedImageUrl\(imageUrl\)/);
+    assert.match(profileAvatar, /failedImageUrl !== imageUrl/);
+    assert.doesNotMatch(profileAvatar, /useEffect/);
     assert.match(profileAvatar, /aria-hidden="true"/);
 
     for (const source of chatSources) {

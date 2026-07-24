@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function isValidProfileImageUrl(imageUrl) {
   if (!imageUrl || imageUrl === 'string') return false;
@@ -12,19 +12,15 @@ function isValidProfileImageUrl(imageUrl) {
 }
 
 function ProfileAvatar({ imageUrl, alt, className = '' }) {
-  const [hasImageError, setHasImageError] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState(null);
 
-  useEffect(() => {
-    setHasImageError(false);
-  }, [imageUrl]);
-
-  if (isValidProfileImageUrl(imageUrl) && !hasImageError) {
+  if (isValidProfileImageUrl(imageUrl) && failedImageUrl !== imageUrl) {
     return (
       <img
         className={className}
         src={imageUrl}
         alt={alt}
-        onError={() => setHasImageError(true)}
+        onError={() => setFailedImageUrl(imageUrl)}
       />
     );
   }

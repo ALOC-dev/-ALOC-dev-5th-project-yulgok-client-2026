@@ -19,6 +19,7 @@
   --text-basic-muted: #6E7B92;
   --text-primary: #1F3F7A;
   --text-secondary: #3D6FBE;
+  --text-error: #c04a67;
   --border: #e5e4e7;
 
   --radius-movebtn: 22px;
@@ -57,6 +58,7 @@
   --color-fg-basic-muted: var(--text-basic-muted);
   --color-fg-primary: var(--text-primary);
   --color-fg-secondary: var(--text-secondary);
+  --color-fg-error: var(--text-error);
 
   --radius-movebtn: var(--radius-movebtn);
   --radius-input: var(--radius-input);

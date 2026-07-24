@@ -130,7 +130,7 @@ function ProfileAvatar({ profile, size = 'large' }) {
 
 function ProfileCard({ profile, stats }) {
   return (
-    <section className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#3f74cf] to-[#234889] px-5 py-5 text-white shadow-[0_18px_42px_rgba(35,72,137,0.18)]">
+    <section className="relative overflow-hidden rounded-[26px] bg-brand-primary px-5 py-5 text-white shadow-[0_18px_42px_rgba(29,61,122,0.18)]">
       <div className="relative flex items-center gap-4">
         <ProfileAvatar profile={profile} />
         <div className="min-w-0">

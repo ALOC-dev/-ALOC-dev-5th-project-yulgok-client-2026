@@ -398,13 +398,24 @@ function MyPage() {
 
     async function loadMyPage() {
       try {
-        const [userProfile, chatRooms, matchingPeople] = await Promise.all([
-          getUserProfile(),
+        const userProfile = await getUserProfile();
+        const [chatRoomsResult, matchingPeopleResult] = await Promise.allSettled([
           getChatRooms(),
           getMatchingStatus(),
         ]);
 
         if (!isMounted) return;
+
+        const chatRooms = chatRoomsResult.status === 'fulfilled' ? chatRoomsResult.value : [];
+        const matchingPeople = matchingPeopleResult.status === 'fulfilled' ? matchingPeopleResult.value : [];
+
+        if (chatRoomsResult.status === 'rejected') {
+          console.warn('채팅방 통계를 불러오지 못했습니다.', chatRoomsResult.reason);
+        }
+
+        if (matchingPeopleResult.status === 'rejected') {
+          console.warn('매칭 통계를 불러오지 못했습니다.', matchingPeopleResult.reason);
+        }
 
         setProfile(userProfile);
         setStats({

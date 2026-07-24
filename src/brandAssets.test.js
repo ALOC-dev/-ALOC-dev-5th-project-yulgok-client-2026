@@ -18,6 +18,8 @@ test('declares purpose-built browser and installable app icons', async () => {
 test('web app manifest maps each app icon to its actual resolution', async () => {
     const manifest = JSON.parse(await readFile(projectFile('public/manifest.webmanifest'), 'utf8'));
 
+    assert.equal(manifest.name, '이룸매이트');
+    assert.equal(manifest.short_name, '이룸매이트');
     assert.deepEqual(
         manifest.icons.map(({ src, sizes, type }) => ({ src, sizes, type })),
         [
@@ -35,6 +37,13 @@ test('web app manifest maps each app icon to its actual resolution', async () =>
         'public/icon-192.png',
         'public/icon-512.png',
     ].map((path) => access(projectFile(path))));
+});
+
+test('browser and installed app use the service name', async () => {
+    const html = await readFile(projectFile('index.html'), 'utf8');
+
+    assert.match(html, /<title>이룸매이트<\/title>/);
+    assert.match(html, /name="apple-mobile-web-app-title" content="이룸매이트"/);
 });
 
 test('login shows the service logo without replacing the school watermark', async () => {

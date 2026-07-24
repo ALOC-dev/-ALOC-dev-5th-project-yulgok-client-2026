@@ -43,6 +43,7 @@ test('login shows the service logo without replacing the school watermark', asyn
     assert.match(login, /src="\/logo\.svg"/);
     assert.match(login, /alt="율곡"/);
     assert.match(login, /className="h-10 w-auto"/);
+    assert.match(login, /<p[^>]*>이룸메이트<\/p>/);
     assert.match(login, /src="\/uos_logo\.svg"/);
     assert.doesNotMatch(login, /<img src="" /);
 });

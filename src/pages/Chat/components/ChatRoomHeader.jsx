@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import ProfileAvatar from './ProfileAvatar.jsx';
+import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
 
 function getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm) {
   if (matchStatus === 'CONFIRM_PENDING' && confirmedByMe === true && canConfirm !== true) return '확정 대기';
@@ -23,6 +23,7 @@ function ChatRoomHeader({
   onReject,
 }) {
   const navigate = useNavigate();
+  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl);
   const statusLabel = getRoomStatusLabel(roomStatus, matchStatus, confirmedByMe, canConfirm);
 
   return (
@@ -38,10 +39,13 @@ function ChatRoomHeader({
         </svg>
       </button>
 
-      <ProfileAvatar
-        className="h-10 w-10 shrink-0 rounded-full bg-ui-sub object-cover"
-        imageUrl={partnerProfileImageUrl}
+      <img
+        className="h-10 w-10 shrink-0 rounded-full bg-white object-cover"
+        src={profileImageUrl}
         alt={`${partnerName} 프로필`}
+        onError={(event) => {
+          event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
+        }}
       />
 
       <div className="flex min-w-0 flex-1 items-center gap-2">

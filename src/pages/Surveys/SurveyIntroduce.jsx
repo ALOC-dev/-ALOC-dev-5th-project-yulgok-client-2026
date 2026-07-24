@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import TextArea from './components/TextArea.jsx'
 import ProgressBar from '../../components/ProgressBar.jsx'
 import MoveBtnGroup from '../../components/MoveBtnGroup.jsx'
@@ -10,11 +10,12 @@ import {
     buildSurveyRequestBody,
     clearSurveyDraft,
     getFirstIncompleteSurveyPath,
+    getSurveyPath,
     loadSurveyDraft,
     saveSurveyDraft,
 } from './surveyDraft.js';
-import { getSurveyErrorMessage, postSurveys } from '../../api/surveys/surveys.js';
-import { changeNickname } from '../../api/users/users.js';
+import { getSurveyErrorMessage, postSurveys, updateSurveys } from '../../api/surveys/surveys.js';
+import { changeNickname, getUserProfile } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import {
@@ -24,6 +25,8 @@ import {
 
 function SurveyIntroduce() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const isEditMode = searchParams.get('mode') === 'edit';
     const { refreshCurrentUser } = useAuth();
     const [nickname, setNickname] = useState('');
     const [introduce, setIntroduce] = useState(() => loadSurveyDraft().introduce ?? '');
@@ -35,6 +38,27 @@ function SurveyIntroduce() {
     useEffect(() => {
         saveSurveyDraft({ introduce, visibleProfileFields });
     }, [introduce, visibleProfileFields]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        if (!isEditMode) return undefined;
+
+        getUserProfile()
+            .then((profile) => {
+                if (!isMounted) return;
+                setNickname((currentNickname) =>
+                    currentNickname || profile?.nickname || profile?.detail?.realName || '',
+                );
+            })
+            .catch((error) => {
+                console.error('프로필 정보를 불러오지 못했습니다.', error);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [isEditMode]);
 
     async function handleNext() {
         if (isSubmitting) return;
@@ -54,7 +78,7 @@ function SurveyIntroduce() {
         }
 
         const draft = saveSurveyDraft({ introduce: introduce.trim(), visibleProfileFields });
-        const incompletePagePath = getFirstIncompleteSurveyPath(draft);
+        const incompletePagePath = getFirstIncompleteSurveyPath(draft, isEditMode);
 
         if (incompletePagePath) {
             setErrorMessage('');
@@ -68,10 +92,14 @@ function SurveyIntroduce() {
             setIsSubmitting(true);
             setErrorMessage('');
             await changeNickname(nickname.trim());
-            await postSurveys(requestBody);
+            if (isEditMode) {
+                await updateSurveys(requestBody);
+            } else {
+                await postSurveys(requestBody);
+            }
             await refreshCurrentUser();
             clearSurveyDraft();
-            navigate('/certification');
+            navigate(isEditMode ? '/my' : '/certification', { replace: true });
         } catch (error) {
             console.error('설문 제출에 실패했습니다.', error);
             if (isSurveyBadRequest(error)) {
@@ -165,10 +193,10 @@ function SurveyIntroduce() {
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
-                    prev='/surveys/living'
+                    prev={getSurveyPath('/surveys/living', isEditMode)}
                     onNext={handleNext}
                     nextDisabled={isSubmitting}
-                    nextLabel={isSubmitting ? '제출 중...' : '다음'}
+                    nextLabel={isSubmitting ? (isEditMode ? '수정 중...' : '제출 중...') : (isEditMode ? '수정하기' : '다음')}
                 />
             </div>
             <RequiredFieldsModal

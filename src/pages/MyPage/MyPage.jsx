@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getChatRooms } from '../../api/chat/chat.js';
 import { getMatchingStatus } from '../../api/matching/matching.js';
-import { getUserProfile, updateUserProfile } from '../../api/users/users.js';
+import { deleteMyAccount, getUserProfile, updateUserProfile } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import { clearSurveyDraft } from '../Surveys/surveyDraft.js';
+import { getProfileImageUrl, PROFILE_IMAGE_BASE_PATH } from '../../utils/profileImage';
 
 const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
 
 const PROFILE_PLACEHOLDER = '프로필 이미지 없음';
-const PROFILE_IMAGE_BASE_PATH = '/images/profile-avatars/';
 const PROFILE_IMAGE_OPTIONS = Array.from({ length: 53 }, (_, index) => ({
   label: `프로필 이미지 ${index + 1}`,
   value: `profile-avatar-${index + 1}.png`,
@@ -83,9 +84,7 @@ function countMatchingStatus(people, status) {
 }
 
 function getProfileImageSrc(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return '';
-  if (profileImageUrl.startsWith('http') || profileImageUrl.startsWith('/')) return profileImageUrl;
-  return `${PROFILE_IMAGE_BASE_PATH}${profileImageUrl}`;
+  return getProfileImageUrl(profileImageUrl, '');
 }
 
 function MenuRow({ label, value, danger = false, onClick }) {
@@ -115,14 +114,14 @@ function ProfileAvatar({ profile, size = 'large' }) {
       <img
         src={imageUrl}
         alt={`${getDisplayName(profile)} 프로필`}
-        className={`${sizeClass} rounded-[22px] border border-white/50 object-cover`}
+        className={`${sizeClass} rounded-[22px] border border-white/50 bg-white object-cover`}
       />
     );
   }
 
   return (
     <div
-      className={`${sizeClass} flex items-center justify-center rounded-[22px] border border-white/50 bg-white/20 font-extrabold text-white`}
+      className={`${sizeClass} flex items-center justify-center rounded-[22px] border border-white/50 bg-white font-extrabold text-brand-primary`}
       aria-label={PROFILE_PLACEHOLDER}
     >
       {getProfileInitial(profile)}
@@ -132,19 +131,7 @@ function ProfileAvatar({ profile, size = 'large' }) {
 
 function ProfileCard({ profile, stats }) {
   return (
-    <section className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#3f74cf] to-[#234889] px-5 py-5 text-white shadow-[0_18px_42px_rgba(35,72,137,0.18)]">
-      <div className="absolute bottom-6 right-0 h-24 w-[46%] opacity-20" aria-hidden="true">
-        <div className="flex h-full items-end gap-1">
-          {[52, 59, 66, 73, 80, 87, 94].map((height) => (
-            <span
-              key={height}
-              className="block w-5 rounded-t-sm bg-white"
-              style={{ height: `${height}%` }}
-            />
-          ))}
-        </div>
-      </div>
-
+    <section className="relative overflow-hidden rounded-[26px] bg-brand-primary px-5 py-5 text-white shadow-[0_18px_42px_rgba(29,61,122,0.18)]">
       <div className="relative flex items-center gap-4">
         <ProfileAvatar profile={profile} />
         <div className="min-w-0">
@@ -347,6 +334,44 @@ function LegalModal({ content, onClose }) {
   );
 }
 
+function WithdrawModal({ isDeleting, errorMessage, onClose, onConfirm }) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#172238]/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0">
+      <div className="w-full max-w-[420px] rounded-[22px] bg-white p-5 shadow-[0_24px_60px_rgba(23,34,56,0.24)]">
+        <h2 className="text-lg font-extrabold text-fg-primary">정말 탈퇴하시겠습니까?</h2>
+        <p className="mt-3 text-sm font-semibold leading-6 text-fg-basic-muted">
+          탈퇴하면 계정 정보와 서비스 이용 기록이 삭제되며, 이후 복구가 어려울 수 있어요.
+        </p>
+
+        {errorMessage && (
+          <p className="mt-4 rounded-xl bg-[#fff1f3] px-3 py-2 text-xs font-bold text-[#a83f57]" role="alert">
+            {errorMessage}
+          </p>
+        )}
+
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            className="min-h-12 rounded-full bg-[#edf2f8] text-sm font-extrabold text-fg-primary disabled:opacity-60"
+            onClick={onClose}
+            disabled={isDeleting}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            className="min-h-12 rounded-full bg-[#c21f48] text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
+            onClick={onConfirm}
+            disabled={isDeleting}
+          >
+            {isDeleting ? '탈퇴 중...' : '탈퇴하기'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MyPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -364,6 +389,9 @@ function MyPage() {
   const [noticeMessage, setNoticeMessage] = useState('');
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [legalModalType, setLegalModalType] = useState(null);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [withdrawErrorMessage, setWithdrawErrorMessage] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -460,6 +488,28 @@ function MyPage() {
     }
   }
 
+  async function handleWithdraw() {
+    if (isDeletingAccount) return;
+
+    try {
+      setIsDeletingAccount(true);
+      setWithdrawErrorMessage('');
+      await deleteMyAccount();
+      await logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('회원 탈퇴 실패', error);
+      setWithdrawErrorMessage(error?.response?.data?.message || '회원 탈퇴를 처리하지 못했어요.');
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  }
+
+  function handleSurveyRetake() {
+    clearSurveyDraft();
+    navigate('/surveys/sleep?mode=edit');
+  }
+
   return (
     <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full max-w-[430px] flex-col px-5 pb-6 pt-7">
       <header className="flex items-center justify-between">
@@ -494,13 +544,18 @@ function MyPage() {
 
       <div className="mt-5 overflow-hidden rounded-[22px] bg-white shadow-sm">
         <MenuRow label="프로필 편집" onClick={() => setIsEditOpen(true)} />
-        <MenuRow label="설문 다시하기" value={surveyValue} onClick={() => navigate('/surveys/sleep')} />
+        <MenuRow label="설문 다시하기" value={surveyValue} onClick={handleSurveyRetake} />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-[22px] bg-white shadow-sm">
         <MenuRow label="이용약관" onClick={() => setLegalModalType('terms')} />
         <MenuRow label="개인정보 처리방침" onClick={() => setLegalModalType('privacy')} />
         <MenuRow label="문의하기" onClick={openExternalSupport} />
+        <MenuRow
+          label={isDeletingAccount ? '탈퇴 처리 중...' : '탈퇴하기'}
+          danger
+          onClick={() => setIsWithdrawModalOpen(true)}
+        />
         <MenuRow
           label={isLoggingOut ? '로그아웃 중...' : '로그아웃'}
           danger
@@ -526,6 +581,19 @@ function MyPage() {
         <LegalModal
           content={LEGAL_CONTENT[legalModalType]}
           onClose={() => setLegalModalType(null)}
+        />
+      )}
+
+      {isWithdrawModalOpen && (
+        <WithdrawModal
+          isDeleting={isDeletingAccount}
+          errorMessage={withdrawErrorMessage}
+          onClose={() => {
+            if (isDeletingAccount) return;
+            setWithdrawErrorMessage('');
+            setIsWithdrawModalOpen(false);
+          }}
+          onConfirm={handleWithdraw}
         />
       )}
     </section>

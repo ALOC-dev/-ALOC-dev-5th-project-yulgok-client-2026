@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Slider from './components/Slider';
 import ProgressBar from '../../components/ProgressBar';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
-import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
-import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
+import { getSurveyPath, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveySleep() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const isEditMode = searchParams.get('mode') === 'edit';
     const [bedtime, setBedtime] = useState(() => loadSurveyDraft().bedtime ?? null);
     const [snoring, setSnoring] = useState(() => loadSurveyDraft().snoring ?? null);
     const [sleepTalking, setSleepTalking] = useState(() => loadSurveyDraft().sleepTalking ?? null);
@@ -24,7 +25,7 @@ function SurveySleep() {
         }
 
         saveSurveyDraft({ bedtime, snoring, sleepTalking });
-        navigate('/surveys/clean');
+        navigate(getSurveyPath('/surveys/clean', isEditMode));
     }
 
     return(
@@ -84,7 +85,7 @@ function SurveySleep() {
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
-                    prev='/user/details'
+                    prev={isEditMode ? '/my' : '/user/details'}
                     onNext={handleNext}
                 />
             </div>

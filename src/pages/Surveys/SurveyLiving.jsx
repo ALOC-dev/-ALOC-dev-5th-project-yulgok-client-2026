@@ -1,13 +1,14 @@
 import {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import ProgressBar from '../../components/ProgressBar';
 import RadioBtnGroup from '../../components/RadioBtnGroup';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
-import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
-import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
+import { getSurveyPath, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyLiving() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const isEditMode = searchParams.get('mode') === 'edit';
     const [smokingStatus, setSmokingStatus] = useState(() => loadSurveyDraft().smokingStatus ?? null);
     const [eatingInRoom, setEatingInRoom] = useState(() => loadSurveyDraft().eatingInRoom ?? null);
     const [temperaturePreference, setTemperaturePreference] = useState(() => loadSurveyDraft().temperaturePreference ?? null);
@@ -27,7 +28,7 @@ function SurveyLiving() {
         }
 
         saveSurveyDraft({ smokingStatus, eatingInRoom, temperaturePreference, speakerStyle, callInRoom });
-        navigate('/surveys/introduce');
+        navigate(getSurveyPath('/surveys/introduce', isEditMode));
     }
 
     return(
@@ -127,7 +128,7 @@ function SurveyLiving() {
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
-                    prev='/surveys/clean'
+                    prev={getSurveyPath('/surveys/clean', isEditMode)}
                     onNext={handleNext}
                 />
             </div>

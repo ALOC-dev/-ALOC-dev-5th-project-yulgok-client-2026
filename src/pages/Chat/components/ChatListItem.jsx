@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import ProfileAvatar from './ProfileAvatar.jsx';
+import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
 
 function formatLastMessageTime(lastMessageTime) {
   if (!lastMessageTime) return '';
@@ -46,6 +46,7 @@ function ChatListItem({
 }) {
   const navigate = useNavigate();
   const normalizedUnreadCount = Number(unreadCount) || 0;
+  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl);
   const messagePreview = lastMessage || '아직 메시지가 없어요.';
 
   return (
@@ -73,10 +74,13 @@ function ChatListItem({
         })}
       >
         <div className="relative shrink-0">
-          <ProfileAvatar
-            className="h-13 w-13 rounded-full bg-ui-sub object-cover"
-            imageUrl={partnerProfileImageUrl}
+          <img
+            className="h-13 w-13 rounded-full bg-white object-cover"
+            src={profileImageUrl}
             alt={`${partnerName} 프로필`}
+            onError={(event) => {
+              event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
+            }}
           />
           {normalizedUnreadCount > 0 && (
             <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#1743a3] px-1 text-[11px] font-extrabold leading-none text-white">

@@ -17,13 +17,12 @@ test('RequiredFieldsModal uses the shared close-only modal content', async () =>
 });
 
 const requiredModalPagePaths = [
-  new URL('../pages/UserDetails/UserDetails.jsx', import.meta.url),
   new URL('../pages/Surveys/SurveySleep.jsx', import.meta.url),
   new URL('../pages/Surveys/SurveyClean.jsx', import.meta.url),
   new URL('../pages/Surveys/SurveyLiving.jsx', import.meta.url),
 ];
 
-test('required pages use RequiredFieldsModal without inline error state', async () => {
+test('survey pages use RequiredFieldsModal without inline error state', async () => {
   for (const pagePath of requiredModalPagePaths) {
     const source = await readFile(pagePath, 'utf8');
 
@@ -32,4 +31,16 @@ test('required pages use RequiredFieldsModal without inline error state', async 
     assert.doesNotMatch(source, /errorMessage/);
     assert.doesNotMatch(source, /<Modal[\s>]/);
   }
+});
+
+test('UserDetails uses RequiredFieldsModal alongside field format errors', async () => {
+  const source = await readFile(
+    new URL('../pages/UserDetails/UserDetails.jsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(source, /<RequiredFieldsModal/);
+  assert.match(source, /setShowRequiredFieldsModal\(true\)/);
+  assert.match(source, /errorMessage=\{fieldErrors\.(age|phoneNumber|studentId)\}/);
+  assert.doesNotMatch(source, /<Modal[\s>]/);
 });

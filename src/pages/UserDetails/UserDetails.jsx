@@ -13,6 +13,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { getUserDetailsSubmitter } from './userDetailsSubmit.js';
 import {
+    getUserDetailsFieldErrors,
     hasMissingUserDetails,
     isBadRequest,
 } from './userDetailsValidation.js';
@@ -27,21 +28,51 @@ function UserDetails() {
     const [studentId, setStudentId] = useState('');
     const [department, setDepartment] = useState('');
     const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [isFormatValidationActive, setIsFormatValidationActive] = useState(false);
+
+    function getFormValues(overrides = {}) {
+        return {
+            realName,
+            age,
+            gender,
+            phoneNumber,
+            studentId,
+            department,
+            ...overrides,
+        };
+    }
+
+    function updateValidatedField(field, value, setter) {
+        setter(value);
+
+        if (isFormatValidationActive) {
+            setFieldErrors(getUserDetailsFieldErrors(getFormValues({ [field]: value })));
+        }
+    }
 
     async function handleNext() {
-        const requestBody = {
-            realName: realName,
-            age: Number(age),
-            gender: gender,
-            phoneNumber: phoneNumber,
-            studentId: studentId,
-            department: department
-        };
+        const formValues = getFormValues();
 
-        if (hasMissingUserDetails(requestBody)) {
+        if (hasMissingUserDetails(formValues)) {
+            setFieldErrors({});
+            setIsFormatValidationActive(false);
             setShowRequiredFieldsModal(true);
             return;
         }
+
+        const nextFieldErrors = getUserDetailsFieldErrors(formValues);
+        setIsFormatValidationActive(true);
+        setFieldErrors(nextFieldErrors);
+
+        if (Object.keys(nextFieldErrors).length > 0) {
+            return;
+        }
+
+        const requestBody = {
+            ...formValues,
+            age: Number(formValues.age),
+        };
 
         try {
             const currentUser = await refreshCurrentUser();
@@ -105,7 +136,8 @@ function UserDetails() {
                             value={age}
                             placeholder="20"
                             autoComplete="age"
-                            onChange={setAge}
+                            onChange={(value) => updateValidatedField('age', value, setAge)}
+                            errorMessage={fieldErrors.age}
                         />
                     </div>
                     <RadioBtnGroup
@@ -128,7 +160,8 @@ function UserDetails() {
                     value={phoneNumber}
                     placeholder="010-1234-5678"
                     autoComplete="tel"
-                    onChange={setPhoneNumber}
+                    onChange={(value) => updateValidatedField('phoneNumber', value, setPhoneNumber)}
+                    errorMessage={fieldErrors.phoneNumber}
                 />
                 <InlineInput
                     name="studentId"
@@ -137,7 +170,8 @@ function UserDetails() {
                     value={studentId}
                     placeholder="2026920000"
                     autoComplete="studentId"
-                    onChange={setStudentId}
+                    onChange={(value) => updateValidatedField('studentId', value, setStudentId)}
+                    errorMessage={fieldErrors.studentId}
                 />
                 <DropDownMenu
                     name="department"

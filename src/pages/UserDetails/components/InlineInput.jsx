@@ -14,6 +14,7 @@ function InlineInput({
     inputStyle = "",
     endAdornment,
     showCharacterCount = false,
+    errorMessage,
     required=true,
     disabled,
     onChange,
@@ -32,10 +33,22 @@ function InlineInput({
                 >
                     {label}
                 </label>
-                {shouldShowCharacterCount && (
-                    <span className="shrink-0 font-sans text-xs font-normal text-fg-basic-muted">
-                        {currentLength}/{maxLength}
-                    </span>
+                {(errorMessage || shouldShowCharacterCount) && (
+                    <div className="flex shrink-0 items-center gap-2">
+                        {errorMessage && (
+                            <span
+                                className="text-fg-error text-xs font-bold"
+                                role="alert"
+                            >
+                                {errorMessage}
+                            </span>
+                        )}
+                        {shouldShowCharacterCount && (
+                            <span className="font-sans text-xs font-normal text-fg-basic-muted">
+                                {currentLength}/{maxLength}
+                            </span>
+                        )}
+                    </div>
                 )}
             </div>
             <div className="relative mt-2">

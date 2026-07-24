@@ -13,7 +13,9 @@ function ExeMatchBtn({ onExecute, isLoading }) {
         className={`h-[clamp(1rem,4.5vw,1.125rem)] w-[clamp(1rem,4.5vw,1.125rem)] shrink-0 text-[#467ac5] ${isLoading ? 'animate-spin' : 'transition-transform group-hover:rotate-45'}`}
         aria-hidden="true"
       />
-      <span className="max-[340px]:sr-only">{isLoading ? '매칭 중' : '오늘의 매칭'}</span>
+      <span className={isLoading ? 'sr-only' : 'max-[340px]:sr-only'}>
+        {isLoading ? '오늘의 매칭 진행 중' : '오늘의 매칭'}
+      </span>
     </button>
   );
 }

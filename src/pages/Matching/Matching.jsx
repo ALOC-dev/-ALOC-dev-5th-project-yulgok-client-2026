@@ -5,6 +5,7 @@ import {
   getMatchingStatus,
 } from '../../api/matching/matching.js';
 import { Modal } from '../../components/Modal/index.js';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 import ExeMatchBtn from './components/ExeMatchBtn.jsx';
 import MatchingCardStack from './components/MatchingCardStack.jsx';
 
@@ -100,13 +101,10 @@ function Matching() {
 
       <div className="flex min-w-0 flex-1 items-center justify-center pb-3 pt-[clamp(0.5rem,3vw,1rem)]">
         {isLoading && (
-          <div
-            className="flex flex-col items-center gap-3 text-sm font-semibold text-fg-basic-muted"
-            role="status"
-          >
-            <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#cad8ec] border-t-brand-primary" />
-            오늘의 룸매를 찾고 있어요...
-          </div>
+          <LoadingSpinner
+            label="오늘의 룸메이트를 찾고 있습니다."
+            className="text-brand-primary"
+          />
         )}
 
         {!isLoading && errorMessage && (

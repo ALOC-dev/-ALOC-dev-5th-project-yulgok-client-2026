@@ -12,6 +12,7 @@ import {
     saveSurveyDraft,
 } from './surveyDraft.js';
 import { getMySurvey, getSurveyErrorMessage } from '../../api/surveys/surveys.js';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 
 function SurveySleep() {
     const navigate = useNavigate();
@@ -96,7 +97,7 @@ function SurveySleep() {
             </header>
             {isLoadingSurvey ? (
                 <div className="flex min-h-[280px] items-center justify-center text-center text-sm font-bold text-fg-secondary">
-                    기존 설문 정보를 불러오는 중이에요.
+                    <LoadingSpinner label="기존 설문 정보를 불러오는 중입니다." size="lg" />
                 </div>
             ) : surveyLoadError ? (
                 <div className="rounded-2xl bg-white p-5 text-sm font-bold text-[#c04a67] shadow-sm">

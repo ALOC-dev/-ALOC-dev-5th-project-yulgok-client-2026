@@ -3,6 +3,7 @@ import { getChatErrorMessage, getChatRooms } from '../../api/chat/chat.js';
 import { getMatchingStatus } from '../../api/matching/matching.js';
 import { chatNotificationEventName } from './chatNotificationEvents.js';
 import ChatList from './components/ChatList.jsx';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 
 const EMPTY_NOTICE_TYPES = Object.freeze({
   DEFAULT: 'DEFAULT',
@@ -101,9 +102,9 @@ function Chat() {
 
       <main className="mt-3">
         {isLoading && (
-          <p className="py-20 text-center text-sm text-fg-basic-muted" role="status">
-            채팅방을 불러오는 중이에요...
-          </p>
+          <div className="flex justify-center py-20 text-brand-primary">
+            <LoadingSpinner label="채팅방을 불러오는 중입니다." />
+          </div>
         )}
 
         {!isLoading && errorMessage && (

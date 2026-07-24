@@ -14,7 +14,7 @@ test('Slider supports optional positioned index labels', async () => {
   assert.match(source, /whitespace-nowrap/);
 });
 
-test('SurveySleep maps bedtime values 2, 3, and 4 to time ranges', async () => {
+test('SurveySleep aligns all bedtime descriptions through one index label map', async () => {
   const source = await readFile(
     new URL('../SurveySleep.jsx', import.meta.url),
     'utf8',
@@ -22,7 +22,7 @@ test('SurveySleep maps bedtime values 2, 3, and 4 to time ranges', async () => {
 
   assert.match(
     source,
-    /indexLabels=\{\{\s*2: '10시~11시',\s*3: '11시~12시',\s*4: '12시~1시',?\s*\}\}/,
+    /label="취침 시간대"\s*indexLabels=\{\{\s*1: '10시 이전',\s*2: '10시~11시',\s*3: '11시~12시',\s*4: '12시~1시',\s*5: '새벽 1시 이후',?\s*\}\}/,
   );
 });
 

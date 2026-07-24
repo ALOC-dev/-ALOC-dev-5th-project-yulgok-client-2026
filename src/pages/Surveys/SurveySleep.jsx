@@ -109,12 +109,12 @@ function SurveySleep() {
                     range={5}
                     value={bedtime}
                     label="취침 시간대"
-                    leftDescription="10시 이전"
-                    rightDescription="새벽 1시 이후"
                     indexLabels={{
+                        1: '10시 이전',
                         2: '10시~11시',
                         3: '11시~12시',
                         4: '12시~1시',
+                        5: '새벽 1시 이후',
                     }}
                     onChange={setBedtime}
                     required

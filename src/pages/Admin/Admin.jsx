@@ -14,6 +14,7 @@ import {
   unbanUser,
   updateMatchingConfig,
 } from '../../api/admin/admin.js';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 
 const tabs = [
   { id: 'users', label: '회원 관리' },
@@ -212,7 +213,7 @@ function AdminUsersPanel({ currentUser }) {
               {isLoading && (
                 <tr>
                   <td className="px-4 py-8 text-center text-fg-basic-muted" colSpan={6}>
-                    회원 목록을 불러오는 중이에요.
+                    <LoadingSpinner label="회원 목록을 불러오는 중입니다." />
                   </td>
                 </tr>
               )}
@@ -247,14 +248,17 @@ function AdminUsersPanel({ currentUser }) {
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button"
-                        className={`min-h-9 rounded-full px-4 text-xs font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45 ${
+                        className={`min-h-9 min-w-20 rounded-full px-4 text-xs font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45 ${
                           isBanned ? 'bg-[#49637f]' : 'bg-[#b42345]'
                         }`}
                         disabled={isSelf || actionUserId === user.userId}
+                        aria-label={actionUserId === user.userId ? '회원 상태를 변경하는 중입니다.' : undefined}
                         title={isSelf ? '본인 계정은 제재할 수 없어요.' : undefined}
                         onClick={() => handleToggleBan(user)}
                       >
-                        {actionUserId === user.userId ? '처리 중' : isBanned ? '제재 해제' : '제재'}
+                        {actionUserId === user.userId
+                          ? <LoadingSpinner label="회원 상태를 변경하는 중입니다." size="sm" />
+                          : isBanned ? '제재 해제' : '제재'}
                       </button>
                     </td>
                   </tr>
@@ -440,9 +444,9 @@ function AdminCertificationsPanel() {
 
         <div className="overflow-hidden rounded-lg border border-[#d9e3f0] bg-white">
           {isLoading && (
-            <p className="px-4 py-8 text-center text-sm text-fg-basic-muted">
-              인증 요청을 불러오는 중이에요.
-            </p>
+            <div className="flex justify-center px-4 py-8 text-brand-primary">
+              <LoadingSpinner label="인증 요청을 불러오는 중입니다." />
+            </div>
           )}
 
           {!isLoading && certifications.length === 0 && (
@@ -499,9 +503,9 @@ function AdminCertificationsPanel() {
         )}
 
         {isDetailLoading && (
-          <p className="py-16 text-center text-sm text-fg-basic-muted">
-            상세 정보를 불러오는 중이에요.
-          </p>
+          <div className="flex justify-center py-16 text-brand-primary">
+            <LoadingSpinner label="인증 요청 상세 정보를 불러오는 중입니다." />
+          </div>
         )}
 
         {selectedCertification && !isDetailLoading && (
@@ -656,7 +660,9 @@ function AdminMatchPanel() {
 
       <form className="rounded-lg border border-[#d9e3f0] bg-white p-5" onSubmit={handleSubmit}>
         {isLoading ? (
-          <p className="py-12 text-center text-sm text-fg-basic-muted">설정을 불러오는 중이에요.</p>
+          <div className="flex justify-center py-12 text-brand-primary">
+            <LoadingSpinner label="매칭 설정을 불러오는 중입니다." />
+          </div>
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-2 text-sm font-extrabold text-fg-primary">
@@ -689,8 +695,11 @@ function AdminMatchPanel() {
               type="submit"
               className="mt-2 min-h-11 rounded-full bg-brand-primary px-5 text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
               disabled={isSaving}
+              aria-label={isSaving ? '매칭 날짜를 저장하는 중입니다.' : undefined}
             >
-              {isSaving ? '저장 중' : '저장'}
+              {isSaving
+                ? <LoadingSpinner label="매칭 날짜를 저장하는 중입니다." size="sm" />
+                : '저장'}
             </button>
           </div>
         )}

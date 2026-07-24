@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useRef } from 'react';
 import MessageItem from './MessageItem.jsx';
+import LoadingSpinner from '../../../components/LoadingSpinner.js';
 
 function getDateKey(value) {
   const date = new Date(value);
@@ -57,11 +58,14 @@ function MessageList({
       {hasNext && (
         <button
           type="button"
-          className="mx-auto my-2 rounded-full bg-ui-sub px-4 py-2 text-xs font-semibold text-fg-primary disabled:opacity-60"
+          className="mx-auto my-2 min-w-[138px] rounded-full bg-ui-sub px-4 py-2 text-xs font-semibold text-fg-primary disabled:opacity-60"
           disabled={isLoadingPrevious}
+          aria-label={isLoadingPrevious ? '이전 메시지를 불러오는 중입니다.' : undefined}
           onClick={onLoadPrevious}
         >
-          {isLoadingPrevious ? '불러오는 중...' : '이전 메시지 불러오기'}
+          {isLoadingPrevious
+            ? <LoadingSpinner label="이전 메시지를 불러오는 중입니다." size="sm" />
+            : '이전 메시지 불러오기'}
         </button>
       )}
 

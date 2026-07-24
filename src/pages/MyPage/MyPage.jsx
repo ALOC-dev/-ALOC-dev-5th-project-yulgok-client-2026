@@ -6,6 +6,7 @@ import { deleteMyAccount, getUserProfile, updateUserProfile } from '../../api/us
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { clearSurveyDraft } from '../Surveys/surveyDraft.js';
 import { getProfileImageUrl, PROFILE_IMAGE_BASE_PATH } from '../../utils/profileImage';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 
 const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
 
@@ -87,13 +88,15 @@ function getProfileImageSrc(profileImageUrl) {
   return getProfileImageUrl(profileImageUrl, '');
 }
 
-function MenuRow({ label, value, danger = false, onClick }) {
+function MenuRow({ label, value, danger = false, onClick, disabled = false, ariaLabel }) {
   return (
     <button
       type="button"
       className={`flex min-h-[52px] w-full items-center justify-between gap-4 border-b border-[#e1e8f2] px-4 text-left text-sm font-bold last:border-b-0 ${
         danger ? 'text-[#d85b70]' : 'text-fg-primary'
       }`}
+      disabled={disabled}
+      aria-label={ariaLabel}
       onClick={onClick}
     >
       <span>{label}</span>
@@ -262,8 +265,11 @@ function ProfileEditModal({ profile, isSaving, errorMessage, onClose, onSubmit }
               type="submit"
               className="min-h-12 rounded-full bg-brand-primary text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
               disabled={isSaving}
+              aria-label={isSaving ? '프로필을 저장하는 중입니다.' : undefined}
             >
-              {isSaving ? '저장 중' : '저장'}
+              {isSaving
+                ? <LoadingSpinner label="프로필을 저장하는 중입니다." size="sm" />
+                : '저장'}
             </button>
           </div>
         </div>
@@ -363,8 +369,11 @@ function WithdrawModal({ isDeleting, errorMessage, onClose, onConfirm }) {
             className="min-h-12 rounded-full bg-[#c21f48] text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
             onClick={onConfirm}
             disabled={isDeleting}
+            aria-label={isDeleting ? '회원 탈퇴를 처리하는 중입니다.' : undefined}
           >
-            {isDeleting ? '탈퇴 중...' : '탈퇴하기'}
+            {isDeleting
+              ? <LoadingSpinner label="회원 탈퇴를 처리하는 중입니다." size="sm" />
+              : '탈퇴하기'}
           </button>
         </div>
       </div>
@@ -530,7 +539,7 @@ function MyPage() {
       <div className="mt-6">
         {isLoading ? (
           <div className="flex h-[178px] items-center justify-center rounded-[26px] bg-white text-sm font-bold text-fg-basic-muted shadow-sm">
-            마이페이지 정보를 불러오는 중이에요...
+            <LoadingSpinner label="마이페이지 정보를 불러오는 중입니다." size="lg" className="text-brand-primary" />
           </div>
         ) : (
           <ProfileCard profile={profile} stats={stats} />
@@ -563,13 +572,21 @@ function MyPage() {
         <MenuRow label="개인정보 처리방침" onClick={() => setLegalModalType('privacy')} />
         <MenuRow label="문의하기" onClick={openExternalSupport} />
         <MenuRow
-          label={isDeletingAccount ? '탈퇴 처리 중...' : '탈퇴하기'}
+          label={isDeletingAccount
+            ? <LoadingSpinner label="회원 탈퇴를 처리하는 중입니다." size="sm" />
+            : '탈퇴하기'}
           danger
+          disabled={isDeletingAccount}
+          ariaLabel={isDeletingAccount ? '회원 탈퇴를 처리하는 중입니다.' : undefined}
           onClick={() => setIsWithdrawModalOpen(true)}
         />
         <MenuRow
-          label={isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+          label={isLoggingOut
+            ? <LoadingSpinner label="로그아웃을 처리하는 중입니다." size="sm" />
+            : '로그아웃'}
           danger
+          disabled={isLoggingOut}
+          ariaLabel={isLoggingOut ? '로그아웃을 처리하는 중입니다.' : undefined}
           onClick={handleLogout}
         />
       </div>

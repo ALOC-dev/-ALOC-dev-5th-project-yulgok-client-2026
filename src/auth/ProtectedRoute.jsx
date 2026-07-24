@@ -4,6 +4,7 @@ import {
     useLocation,
 } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
+import LoadingSpinner from '../components/LoadingSpinner.js';
 
 function ProtectedRoute() {
     const location = useLocation();
@@ -17,7 +18,7 @@ function ProtectedRoute() {
     if(isCheckingAuth) {
         return (
             <main className="flex min-h-dvh items-center justify-center">
-                <p>로그인 상태를 확인하고 있습니다...</p>
+                <LoadingSpinner label="로그인 상태를 확인하고 있습니다." size="lg" className="text-brand-primary" />
             </main>
         );
     }

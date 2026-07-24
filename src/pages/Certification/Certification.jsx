@@ -8,6 +8,7 @@ import { submitCertificationImage } from "../../api/certification/certificationF
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { canAccessCertifiedRoutes } from "../../auth/serviceFlow.js";
 import { Modal } from "../../components/Modal/index.js";
+import LoadingSpinner from "../../components/LoadingSpinner.js";
 
 function isCertificationEligible(user) {
     return user?.role === 'USER' && user?.surveyCompleted === true;
@@ -168,7 +169,7 @@ function Certification() {
                 disabled={isWorking || (!isRequested && !certificateImage)}
                 label={
                     isWorking
-                        ? '확인 중...'
+                        ? <LoadingSpinner label="인증 요청을 처리하는 중입니다." size="sm" />
                         : isRequested
                             ? '인증 확인'
                             : isRejected

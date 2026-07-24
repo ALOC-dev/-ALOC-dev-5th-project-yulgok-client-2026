@@ -18,6 +18,7 @@ import { getSurveyErrorMessage, postSurveys, updateSurveys } from '../../api/sur
 import { changeNickname } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 import {
     hasMissingSurveyIntroduceFields,
     isSurveyBadRequest,
@@ -184,7 +185,14 @@ function SurveyIntroduce() {
                     prev={getSurveyPath('/surveys/living', isEditMode)}
                     onNext={handleNext}
                     nextDisabled={isSubmitting}
-                    nextLabel={isSubmitting ? (isEditMode ? '수정 중...' : '제출 중...') : (isEditMode ? '수정하기' : '다음')}
+                    nextLabel={isSubmitting
+                        ? (
+                            <LoadingSpinner
+                                label={isEditMode ? '설문을 수정하는 중입니다.' : '설문을 제출하는 중입니다.'}
+                                size="sm"
+                            />
+                        )
+                        : (isEditMode ? '수정하기' : '다음')}
                 />
             </div>
             <RequiredFieldsModal

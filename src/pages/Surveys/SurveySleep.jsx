@@ -12,6 +12,7 @@ import {
     saveSurveyDraft,
 } from './surveyDraft.js';
 import { getMySurvey, getSurveyErrorMessage } from '../../api/surveys/surveys.js';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 
 function SurveySleep() {
     const navigate = useNavigate();
@@ -96,7 +97,7 @@ function SurveySleep() {
             </header>
             {isLoadingSurvey ? (
                 <div className="flex min-h-[280px] items-center justify-center text-center text-sm font-bold text-fg-secondary">
-                    기존 설문 정보를 불러오는 중이에요.
+                    <LoadingSpinner label="기존 설문 정보를 불러오는 중입니다." size="lg" />
                 </div>
             ) : surveyLoadError ? (
                 <div className="rounded-2xl bg-white p-5 text-sm font-bold text-[#c04a67] shadow-sm">
@@ -108,12 +109,12 @@ function SurveySleep() {
                     range={5}
                     value={bedtime}
                     label="취침 시간대"
-                    leftDescription="10시 이전"
-                    rightDescription="새벽 1시 이후"
                     indexLabels={{
+                        1: '10시 이전',
                         2: '10시~11시',
                         3: '11시~12시',
                         4: '12시~1시',
+                        5: '새벽 1시 이후',
                     }}
                     onChange={setBedtime}
                     required

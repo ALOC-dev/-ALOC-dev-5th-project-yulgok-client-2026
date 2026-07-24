@@ -20,6 +20,7 @@ import { useChatSocket } from './ChatSocketContext.jsx';
 import ChatRoomHeader from './components/ChatRoomHeader.jsx';
 import MessageInput from './components/MessageInput.jsx';
 import MessageList from './components/MessageList.jsx';
+import LoadingSpinner from '../../components/LoadingSpinner.js';
 
 const FINAL_CONFIRM_FORM_NOTICE = '연락처가 공개되어도 기숙사 룸메이트 신청이 완료된 것은 아닙니다. 학교 안내에 따라 별도 구글폼 신청을 꼭 진행해 주세요.';
 
@@ -132,9 +133,15 @@ function ChatClosedNotice({ contact, contactErrorMessage, isLoadingContact, onSh
             </div>
           </>
         ) : (
-          <p className="mt-1 text-xs font-semibold text-fg-basic-muted">
-            {isLoadingContact ? '공개된 연락처를 확인하는 중이에요.' : '공개된 연락처로 이후 일정을 조율해 주세요.'}
-          </p>
+          isLoadingContact ? (
+            <div className="mt-2 text-brand-primary">
+              <LoadingSpinner label="공개된 연락처를 확인하는 중입니다." size="sm" />
+            </div>
+          ) : (
+            <p className="mt-1 text-xs font-semibold text-fg-basic-muted">
+              공개된 연락처로 이후 일정을 조율해 주세요.
+            </p>
+          )
         )}
         {contactErrorMessage && (
           <p className="mt-2 text-xs font-bold text-[#a83f57]">{contactErrorMessage}</p>
@@ -574,8 +581,8 @@ function ChatRoom() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-brand-background text-sm font-semibold text-fg-basic-muted" role="status">
-        대화를 불러오는 중이에요...
+      <div className="flex min-h-dvh items-center justify-center bg-brand-background text-brand-primary">
+        <LoadingSpinner label="대화를 불러오는 중입니다." size="lg" />
       </div>
     );
   }
@@ -697,9 +704,12 @@ function ChatRoom() {
                     type="button"
                     className="min-h-11 rounded-full bg-brand-primary px-4 text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
                     disabled={isConfirmingMatch}
+                    aria-label={isConfirmingMatch ? '최종 확정을 처리하는 중입니다.' : undefined}
                     onClick={handleFinalConfirm}
                   >
-                    {isConfirmingMatch ? '확정 중' : '최종확정'}
+                    {isConfirmingMatch
+                      ? <LoadingSpinner label="최종 확정을 처리하는 중입니다." size="sm" />
+                      : '최종확정'}
                   </button>
                 </div>
               </>
@@ -800,9 +810,12 @@ function ChatRoom() {
                 type="button"
                 className="min-h-11 rounded-full bg-[#c21f4b] px-4 text-sm font-extrabold text-white disabled:cursor-wait disabled:opacity-60"
                 disabled={isRejectingMatch}
+                aria-label={isRejectingMatch ? '매칭 거절을 처리하는 중입니다.' : undefined}
                 onClick={handleRejectMatch}
               >
-                {isRejectingMatch ? '처리 중' : '거절'}
+                {isRejectingMatch
+                  ? <LoadingSpinner label="매칭 거절을 처리하는 중입니다." size="sm" />
+                  : '거절'}
               </button>
             </div>
           </div>

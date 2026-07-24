@@ -6,6 +6,7 @@ function Slider({
     label,
     leftDescription,
     rightDescription,
+    indexLabels = {},
     onChange,
     required = false,
 }) {
@@ -14,6 +15,7 @@ function Slider({
     const values = Array.from({ length: lastValue }, (_, index) => index + 1);
     const hasValue = Number.isInteger(value) && value >= 1 && value <= lastValue;
     const inputValue = hasValue ? value : 1;
+    const hasIndexLabels = Object.keys(indexLabels).length > 0;
 
     const handleChange = (event) => {
         const nextValue = Number(event.target.value);
@@ -80,6 +82,24 @@ function Slider({
                         </span>
                     ))}
                 </div>
+
+                {hasIndexLabels && (
+                    <div className="relative mx-[10px] mt-1 h-4 text-[10px] leading-4 text-fg-basic-muted">
+                        {values.map((item) => indexLabels[item] && (
+                            <span
+                                key={item}
+                                style={{
+                                    left: lastValue === 1
+                                        ? "50%"
+                                        : `${((item - 1) / (lastValue - 1)) * 100}%`,
+                                }}
+                                className="absolute top-0 -translate-x-1/2 whitespace-nowrap text-center"
+                            >
+                                {indexLabels[item]}
+                            </span>
+                        ))}
+                    </div>
+                )}
 
                 {(leftDescription || rightDescription) && (
                     <div className="mt-2 flex justify-between gap-4 text-[10px] leading-4 text-[#7D8BA1]">

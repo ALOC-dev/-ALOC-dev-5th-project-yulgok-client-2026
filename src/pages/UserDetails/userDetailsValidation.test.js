@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
+  formatPhoneNumber,
   getUserDetailsFieldErrors,
   hasMissingUserDetails,
   isBadRequest,
@@ -15,6 +16,15 @@ const completeDetails = {
   studentId: '2026920000',
   department: '컴퓨터공학부',
 };
+
+test('formats phone numbers with hyphens while typing or pasting', () => {
+  assert.equal(formatPhoneNumber('010'), '010');
+  assert.equal(formatPhoneNumber('0101'), '010-1');
+  assert.equal(formatPhoneNumber('0101234'), '010-1234');
+  assert.equal(formatPhoneNumber('01012345678'), '010-1234-5678');
+  assert.equal(formatPhoneNumber('010-1234-5678'), '010-1234-5678');
+  assert.equal(formatPhoneNumber('010 1234 56789'), '010-1234-5678');
+});
 
 test('reports missing required user details without accepting whitespace', () => {
   assert.equal(hasMissingUserDetails(completeDetails), false);

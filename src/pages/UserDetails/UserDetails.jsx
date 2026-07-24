@@ -13,6 +13,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import { getUserDetailsSubmitter } from './userDetailsSubmit.js';
 import {
+    formatPhoneNumber,
     getUserDetailsFieldErrors,
     hasMissingUserDetails,
     isBadRequest,
@@ -160,7 +161,11 @@ function UserDetails() {
                     value={phoneNumber}
                     placeholder="010-1234-5678"
                     autoComplete="tel"
-                    onChange={(value) => updateValidatedField('phoneNumber', value, setPhoneNumber)}
+                    maxLength={13}
+                    onChange={(value) => {
+                        const formattedValue = formatPhoneNumber(value);
+                        updateValidatedField('phoneNumber', formattedValue, setPhoneNumber);
+                    }}
                     errorMessage={fieldErrors.phoneNumber}
                 />
                 <InlineInput

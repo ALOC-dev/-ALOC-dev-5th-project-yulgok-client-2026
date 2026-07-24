@@ -83,11 +83,11 @@ function Matching() {
       <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full min-w-0 max-w-[600px] flex-col overflow-x-clip px-[clamp(0.75rem,4vw,1.5rem)] pb-44 pt-[clamp(1rem,4vw,2rem)]">
       <header className="flex min-w-0 items-center justify-between gap-[clamp(0.5rem,3vw,0.75rem)]">
         <div className="min-w-0">
-          <h1 className="font-heading text-[clamp(1.125rem,3vw,1.5rem)] font-extrabold tracking-[-0.02em] text-fg-primary">
+          <h1 className="font-heading text-[clamp(1.25rem,3.25vw,1.625rem)] font-extrabold tracking-[-0.02em] text-fg-primary">
             오늘의 룸매
           </h1>
           <p
-            className={`mt-1 text-xs font-medium ${
+            className={`mt-1 text-[13px] font-medium ${
               executeError ? 'break-words leading-5 text-[#c04a67]' : 'truncate text-fg-basic-muted'
             }`}
             title={executeError || undefined}

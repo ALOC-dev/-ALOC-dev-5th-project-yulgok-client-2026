@@ -94,8 +94,8 @@ function Chat() {
     <section className="flex min-h-[calc(100dvh-96px)] flex-col px-5 pb-10 pt-5">
       <header className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="font-heading text-lg font-extrabold text-fg-primary">채팅</h1>
-          <p className="font-heading text-xs text-fg-basic-muted">서로 하트를 보낸 유저와 채팅할 수 있어요.</p>
+          <h1 className="font-heading text-xl font-extrabold text-fg-primary">채팅</h1>
+          <p className="font-heading text-[13px] text-fg-basic-muted">서로 하트를 보낸 유저와 채팅할 수 있어요.</p>
         </div>
       </header>
 

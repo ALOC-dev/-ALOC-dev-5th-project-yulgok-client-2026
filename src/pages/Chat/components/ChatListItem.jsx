@@ -92,7 +92,7 @@ function ChatListItem({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-extrabold text-fg-primary">{partnerName}</p>
           <p
-            className={`mt-0.5 truncate text-xs ${normalizedUnreadCount > 0 ? 'font-semibold text-fg-basic' : 'text-fg-basic-muted'}`}
+            className={`mt-0.5 truncate text-sm ${normalizedUnreadCount > 0 ? 'font-semibold text-fg-basic' : 'text-fg-basic-muted'}`}
           >
             {messagePreview}
           </p>

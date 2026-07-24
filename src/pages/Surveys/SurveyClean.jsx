@@ -1,13 +1,15 @@
 import {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import ProgressBar from '../../components/ProgressBar';
 import Slider from './components/Slider';
 import RadioBtnGroup from '../../components/RadioBtnGroup';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
-import { loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
+import { getSurveyPath, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
 
 function SurveyClean() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const isEditMode = searchParams.get('mode') === 'edit';
     const [organizingStyle, setOrganizingStyle] = useState(() => loadSurveyDraft().organizingStyle ?? null);
     const [showerFrequency, setShowerFrequency] = useState(() => loadSurveyDraft().showerFrequency ?? null);
     const [errorMessage, setErrorMessage] = useState('');
@@ -24,7 +26,7 @@ function SurveyClean() {
 
         setErrorMessage('');
         saveSurveyDraft({ organizingStyle, showerFrequency });
-        navigate('/surveys/living');
+        navigate(getSurveyPath('/surveys/living', isEditMode));
     }
 
     return(
@@ -76,7 +78,7 @@ function SurveyClean() {
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
-                    prev='/surveys/sleep'
+                    prev={getSurveyPath('/surveys/sleep', isEditMode)}
                     onNext={handleNext}
                 />
             </div>

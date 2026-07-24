@@ -4,6 +4,7 @@ import { getChatRooms } from '../../api/chat/chat.js';
 import { getMatchingStatus } from '../../api/matching/matching.js';
 import { deleteMyAccount, getUserProfile, updateUserProfile } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import { clearSurveyDraft } from '../Surveys/surveyDraft.js';
 import { getProfileImageUrl, PROFILE_IMAGE_BASE_PATH } from '../../utils/profileImage';
 
 const OPEN_CHAT_URL = 'https://open.kakao.com/o/sqxsQsFi';
@@ -504,6 +505,11 @@ function MyPage() {
     }
   }
 
+  function handleSurveyRetake() {
+    clearSurveyDraft();
+    navigate('/surveys/sleep?mode=edit');
+  }
+
   return (
     <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full max-w-[430px] flex-col px-5 pb-6 pt-7">
       <header className="flex items-center justify-between">
@@ -538,7 +544,7 @@ function MyPage() {
 
       <div className="mt-5 overflow-hidden rounded-[22px] bg-white shadow-sm">
         <MenuRow label="프로필 편집" onClick={() => setIsEditOpen(true)} />
-        <MenuRow label="설문 다시하기" value={surveyValue} onClick={() => navigate('/surveys/sleep')} />
+        <MenuRow label="설문 다시하기" value={surveyValue} onClick={handleSurveyRetake} />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-[22px] bg-white shadow-sm">

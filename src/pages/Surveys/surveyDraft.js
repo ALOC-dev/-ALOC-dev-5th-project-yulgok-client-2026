@@ -18,6 +18,10 @@ export function clearSurveyDraft() {
     sessionStorage.removeItem(STORAGE_KEY);
 }
 
+export function getSurveyPath(path, isEditMode) {
+    return isEditMode ? `${path}?mode=edit` : path;
+}
+
 const REQUIRED_FIELDS_BY_PAGE = [
     {
         path: '/surveys/sleep',
@@ -50,12 +54,12 @@ function isValidNumber(value, minimum, maximum) {
     return Number.isInteger(value) && value >= minimum && value <= maximum;
 }
 
-export function getFirstIncompleteSurveyPath(draft) {
+export function getFirstIncompleteSurveyPath(draft, isEditMode = false) {
     const incompletePage = REQUIRED_FIELDS_BY_PAGE.find(({ fields }) =>
         fields.some(([field, minimum, maximum]) => !isValidNumber(draft[field], minimum, maximum)),
     );
 
-    return incompletePage?.path ?? null;
+    return incompletePage ? getSurveyPath(incompletePage.path, isEditMode) : null;
 }
 
 export function buildSurveyRequestBody(draft) {

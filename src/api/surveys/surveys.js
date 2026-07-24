@@ -5,6 +5,11 @@ export async function postSurveys(requestBody) {
     return response.data;
 }
 
+export async function updateSurveys(requestBody) {
+    const response = await apiClient.patch('/api/surveys', requestBody);
+    return response.data;
+}
+
 export function getSurveyErrorMessage(error) {
     const responseBody = error?.response?.data;
     const validationDetails = Array.isArray(responseBody?.errors)

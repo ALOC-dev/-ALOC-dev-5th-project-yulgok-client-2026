@@ -1,17 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-
-const fallbackProfileImageUrl = '/favicon.svg';
-
-function isValidProfileImageUrl(profileImageUrl) {
-  if (!profileImageUrl || profileImageUrl === 'string') return false;
-
-  try {
-    const url = new URL(profileImageUrl, window.location.origin);
-    return url.protocol === 'http:' || url.protocol === 'https:' || url.pathname.startsWith('/');
-  } catch {
-    return false;
-  }
-}
+import ProfileAvatar from './ProfileAvatar.jsx';
 
 function formatLastMessageTime(lastMessageTime) {
   if (!lastMessageTime) return '';
@@ -58,9 +46,6 @@ function ChatListItem({
 }) {
   const navigate = useNavigate();
   const normalizedUnreadCount = Number(unreadCount) || 0;
-  const profileImageUrl = isValidProfileImageUrl(partnerProfileImageUrl)
-    ? partnerProfileImageUrl
-    : fallbackProfileImageUrl;
   const messagePreview = lastMessage || '아직 메시지가 없어요.';
 
   return (
@@ -88,13 +73,10 @@ function ChatListItem({
         })}
       >
         <div className="relative shrink-0">
-          <img
+          <ProfileAvatar
             className="h-13 w-13 rounded-full bg-ui-sub object-cover"
-            src={profileImageUrl}
+            imageUrl={partnerProfileImageUrl}
             alt={`${partnerName} 프로필`}
-            onError={(event) => {
-              event.currentTarget.src = fallbackProfileImageUrl;
-            }}
           />
           {normalizedUnreadCount > 0 && (
             <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#1743a3] px-1 text-[11px] font-extrabold leading-none text-white">

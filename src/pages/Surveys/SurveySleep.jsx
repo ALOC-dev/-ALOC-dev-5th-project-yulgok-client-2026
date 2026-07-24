@@ -66,6 +66,7 @@ function SurveySleep() {
                     label="코골이"
                     leftDescription="없음"
                     rightDescription="심함"
+                    indexLabels={{ 3: '보통' }}
                     onChange={setSnoring}
                     required
                 />
@@ -75,6 +76,7 @@ function SurveySleep() {
                     label="잠꼬대"
                     leftDescription="없음"
                     rightDescription="심함"
+                    indexLabels={{ 3: '보통' }}
                     onChange={setSleepTalking}
                     required
                 />

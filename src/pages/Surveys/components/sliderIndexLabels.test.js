@@ -25,3 +25,27 @@ test('SurveySleep maps bedtime values 2, 3, and 4 to time ranges', async () => {
     /indexLabels=\{\{\s*2: '10시~11시',\s*3: '11시~12시',\s*4: '12시~1시',?\s*\}\}/,
   );
 });
+
+test('sleep and clean survey sliders label value 3 as average', async () => {
+  const sleepSource = await readFile(
+    new URL('../SurveySleep.jsx', import.meta.url),
+    'utf8',
+  );
+  const cleanSource = await readFile(
+    new URL('../SurveyClean.jsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(
+    sleepSource,
+    /value=\{snoring\}[\s\S]*?indexLabels=\{\{\s*3: '보통',?\s*\}\}/,
+  );
+  assert.match(
+    sleepSource,
+    /value=\{sleepTalking\}[\s\S]*?indexLabels=\{\{\s*3: '보통',?\s*\}\}/,
+  );
+  assert.match(
+    cleanSource,
+    /value=\{organizingStyle\}[\s\S]*?indexLabels=\{\{\s*3: '보통',?\s*\}\}/,
+  );
+});

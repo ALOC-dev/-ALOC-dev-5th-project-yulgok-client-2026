@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { getDropdownScrollOffset } from "./getDropdownScrollOffset.js";
 import { sortKoreanItems } from "./sortKoreanItems.js";
 
 function DropDownMenu({
@@ -16,6 +17,7 @@ function DropDownMenu({
     const selectId = id ?? generatedId;
     const listboxId = `${selectId}-listbox`;
     const rootRef = useRef(null);
+    const listboxRef = useRef(null);
     const optionRefs = useRef([]);
     const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -38,6 +40,29 @@ function DropDownMenu({
         onChange?.(item);
         closeListbox();
     };
+
+    useEffect(() => {
+        if (!isOpen) return undefined;
+
+        const animationFrameId = window.requestAnimationFrame(() => {
+            const menuBottom = listboxRef.current?.getBoundingClientRect().bottom;
+            if (menuBottom === undefined) return;
+
+            const scrollOffset = getDropdownScrollOffset(
+                menuBottom,
+                window.innerHeight,
+            );
+
+            if (scrollOffset > 0) {
+                window.scrollBy({
+                    top: scrollOffset,
+                    behavior: "smooth",
+                });
+            }
+        });
+
+        return () => window.cancelAnimationFrame(animationFrameId);
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) return undefined;
@@ -161,6 +186,7 @@ function DropDownMenu({
             </button>
             {isOpen && (
                 <ul
+                    ref={listboxRef}
                     id={listboxId}
                     role="listbox"
                     aria-label={label}

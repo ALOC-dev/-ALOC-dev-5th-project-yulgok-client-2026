@@ -18,6 +18,7 @@ import {
 } from './authEvents.js';
 import { getCurrentUser } from '../api/auth/authStatus.js';
 import { createAuthOperationCoordinator } from './authOperationCoordinator.js';
+import { resetMatchingNotice } from './matchingNoticeSession.js';
 
 const AuthContext = createContext(null);
 
@@ -99,6 +100,11 @@ export function AuthProvider({ children }) {
         return user;
     }, []);
 
+    const completeLogin = useCallback(async (accessToken) => {
+        resetMatchingNotice();
+        return authCoordinator.completeLogin(accessToken);
+    }, [authCoordinator]);
+
     const logout = useCallback(async () => {
         try {
             await apiClient.post('/api/auth/logout', undefined, {
@@ -106,6 +112,7 @@ export function AuthProvider({ children }) {
             });
         } finally {
             removeAccessToken();
+            resetMatchingNotice();
             setAuthState({
                 currentUser: null,
                 isAuthenticated: false,
@@ -117,7 +124,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
         accessToken: getAccessToken(),
-        completeLogin: authCoordinator.completeLogin,
+        completeLogin,
         isAuthenticated,
         isCheckingAuth,
         currentUser,
@@ -125,7 +132,7 @@ export function AuthProvider({ children }) {
         logout,
     }),
     [
-        authCoordinator,
+        completeLogin,
         currentUser,
         isAuthenticated,
         isCheckingAuth,

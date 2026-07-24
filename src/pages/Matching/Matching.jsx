@@ -5,11 +5,15 @@ import {
   getMatchingStatus,
 } from '../../api/matching/matching.js';
 import { Modal } from '../../components/Modal/index.js';
+import {
+  confirmMatchingNotice,
+  hasConfirmedMatchingNotice,
+} from '../../auth/matchingNoticeSession.js';
 import ExeMatchBtn from './components/ExeMatchBtn.jsx';
 import MatchingCardStack from './components/MatchingCardStack.jsx';
 
 function Matching() {
-  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
+  const [isNoticeOpen, setIsNoticeOpen] = useState(() => !hasConfirmedMatchingNotice());
   const [people, setPeople] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -78,6 +82,11 @@ function Matching() {
     setPeople(matchingPeople);
   };
 
+  const closeNotice = () => {
+    confirmMatchingNotice();
+    setIsNoticeOpen(false);
+  };
+
   return (
     <>
       <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full min-w-0 max-w-[600px] flex-col overflow-x-clip px-[clamp(0.75rem,4vw,1.5rem)] pb-44 pt-[clamp(1rem,4vw,2rem)]">
@@ -135,7 +144,7 @@ function Matching() {
 
       <Modal
         open={isNoticeOpen}
-        onClose={() => setIsNoticeOpen(false)}
+        onClose={closeNotice}
         title="매칭 이용 안내"
         size="small"
         closeOnOverlayClick={false}
@@ -152,7 +161,7 @@ function Matching() {
           </p>
         </div>
         <Modal.Footer>
-          <Modal.Button onClick={() => setIsNoticeOpen(false)}>확인</Modal.Button>
+          <Modal.Button onClick={closeNotice}>확인</Modal.Button>
         </Modal.Footer>
       </Modal>
     </>

@@ -2,9 +2,10 @@ export function hasMissingSurveyIntroduceFields({
   nickname,
   introduce,
   visibleProfileFields,
+  requireNickname = true,
 }) {
   return (
-    !nickname.trim()
+    (requireNickname && !nickname.trim())
     || !introduce.trim()
     || visibleProfileFields.length < 1
   );

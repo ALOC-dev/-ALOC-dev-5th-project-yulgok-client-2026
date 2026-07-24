@@ -10,6 +10,11 @@ export async function updateSurveys(requestBody) {
     return response.data;
 }
 
+export async function getMySurvey() {
+    const response = await apiClient.get('/api/surveys/me');
+    return response.data?.data ?? null;
+}
+
 export function getSurveyErrorMessage(error) {
     const responseBody = error?.response?.data;
     const validationDetails = Array.isArray(responseBody?.errors)

@@ -4,7 +4,14 @@ import Slider from './components/Slider';
 import ProgressBar from '../../components/ProgressBar';
 import MoveBtnGroup from '../../components/MoveBtnGroup';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
-import { getSurveyPath, loadSurveyDraft, saveSurveyDraft } from './surveyDraft.js';
+import {
+    getSurveyPath,
+    loadSurveyDraft,
+    mapSurveyResponseToDraft,
+    replaceSurveyDraft,
+    saveSurveyDraft,
+} from './surveyDraft.js';
+import { getMySurvey, getSurveyErrorMessage } from '../../api/surveys/surveys.js';
 
 function SurveySleep() {
     const navigate = useNavigate();
@@ -13,13 +20,53 @@ function SurveySleep() {
     const [bedtime, setBedtime] = useState(() => loadSurveyDraft().bedtime ?? null);
     const [snoring, setSnoring] = useState(() => loadSurveyDraft().snoring ?? null);
     const [sleepTalking, setSleepTalking] = useState(() => loadSurveyDraft().sleepTalking ?? null);
+    const [isLoadingSurvey, setIsLoadingSurvey] = useState(isEditMode);
+    const [surveyLoadError, setSurveyLoadError] = useState('');
     const [showRequiredFieldsModal, setShowRequiredFieldsModal] = useState(false);
 
     useEffect(() => {
+        if (isLoadingSurvey) return;
         saveSurveyDraft({ bedtime, snoring, sleepTalking });
-    }, [bedtime, snoring, sleepTalking]);
+    }, [bedtime, snoring, sleepTalking, isLoadingSurvey]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        if (!isEditMode) {
+            setIsLoadingSurvey(false);
+            return undefined;
+        }
+
+        setIsLoadingSurvey(true);
+        setSurveyLoadError('');
+
+        getMySurvey()
+            .then((survey) => {
+                if (!isMounted) return;
+
+                const nextDraft = replaceSurveyDraft(mapSurveyResponseToDraft(survey));
+                setBedtime(nextDraft.bedtime);
+                setSnoring(nextDraft.snoring);
+                setSleepTalking(nextDraft.sleepTalking);
+            })
+            .catch((error) => {
+                if (!isMounted) return;
+                console.error('기존 설문 정보를 불러오지 못했습니다.', error);
+                setSurveyLoadError(getSurveyErrorMessage(error));
+            })
+            .finally(() => {
+                if (!isMounted) return;
+                setIsLoadingSurvey(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [isEditMode]);
 
     function handleNext() {
+        if (isLoadingSurvey || surveyLoadError) return;
+
         if (![bedtime, snoring, sleepTalking].every(Number.isInteger)) {
             setShowRequiredFieldsModal(true);
             return;
@@ -47,6 +94,15 @@ function SurveySleep() {
 
                 </p>
             </header>
+            {isLoadingSurvey ? (
+                <div className="flex min-h-[280px] items-center justify-center text-center text-sm font-bold text-fg-secondary">
+                    기존 설문 정보를 불러오는 중이에요.
+                </div>
+            ) : surveyLoadError ? (
+                <div className="rounded-2xl bg-white p-5 text-sm font-bold text-[#c04a67] shadow-sm">
+                    {surveyLoadError}
+                </div>
+            ) : (
             <section className="flex flex-col flex-1 gap-8">
                 <Slider
                     range={5}
@@ -83,11 +139,13 @@ function SurveySleep() {
                     required
                 />
             </section>
+            )}
             </div>
             <div className="shrink-0 bg-brand-background pt-3">
                 <MoveBtnGroup
                     prev={isEditMode ? '/my' : '/user/details'}
                     onNext={handleNext}
+                    nextDisabled={isLoadingSurvey || Boolean(surveyLoadError)}
                 />
             </div>
             <RequiredFieldsModal

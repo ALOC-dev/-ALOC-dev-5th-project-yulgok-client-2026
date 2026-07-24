@@ -14,6 +14,11 @@ export function saveSurveyDraft(partialDraft) {
     return draft;
 }
 
+export function replaceSurveyDraft(nextDraft) {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nextDraft));
+    return nextDraft;
+}
+
 export function clearSurveyDraft() {
     sessionStorage.removeItem(STORAGE_KEY);
 }
@@ -78,5 +83,51 @@ export function buildSurveyRequestBody(draft) {
             callInRoom: draft.callInRoom,
         },
         visibleProfileFields: draft.visibleProfileFields,
+    };
+}
+
+const ANSWER_FIELD_MAP = {
+    bedtime: 'BEDTIME',
+    snoring: 'SNORING',
+    sleepTalking: 'SLEEP_TALKING',
+    organizingStyle: 'ORGANIZING_STYLE',
+    eatingInRoom: 'EATING_IN_ROOM',
+    temperaturePreference: 'TEMPERATURE_PREFERENCE',
+    showerFrequency: 'SHOWER_FREQUENCY',
+    speakerStyle: 'SPEAKER_STYLE',
+    callInRoom: 'CALL_IN_ROOM',
+};
+
+function toIntegerOrNull(value) {
+    const numberValue = Number(value);
+    return Number.isInteger(numberValue) ? numberValue : null;
+}
+
+function findAnswerValue(survey, fieldName) {
+    const answers = survey?.answers ?? {};
+    const enumName = ANSWER_FIELD_MAP[fieldName];
+    const preferredAnswer = Array.isArray(survey?.preferredAnswers)
+        ? survey.preferredAnswers.find((answer) => answer?.field === enumName)
+        : null;
+
+    return answers[fieldName] ?? survey?.[fieldName] ?? preferredAnswer?.value ?? null;
+}
+
+export function mapSurveyResponseToDraft(survey) {
+    return {
+        bedtime: toIntegerOrNull(findAnswerValue(survey, 'bedtime')),
+        snoring: toIntegerOrNull(findAnswerValue(survey, 'snoring')),
+        sleepTalking: toIntegerOrNull(findAnswerValue(survey, 'sleepTalking')),
+        organizingStyle: toIntegerOrNull(findAnswerValue(survey, 'organizingStyle')),
+        eatingInRoom: toIntegerOrNull(findAnswerValue(survey, 'eatingInRoom')),
+        temperaturePreference: toIntegerOrNull(findAnswerValue(survey, 'temperaturePreference')),
+        showerFrequency: toIntegerOrNull(findAnswerValue(survey, 'showerFrequency')),
+        speakerStyle: toIntegerOrNull(findAnswerValue(survey, 'speakerStyle')),
+        callInRoom: toIntegerOrNull(findAnswerValue(survey, 'callInRoom')),
+        smokingStatus: toIntegerOrNull(survey?.smokingStatus),
+        introduce: typeof survey?.introduce === 'string' ? survey.introduce : '',
+        visibleProfileFields: Array.isArray(survey?.visibleProfileFields)
+            ? survey.visibleProfileFields
+            : [],
     };
 }

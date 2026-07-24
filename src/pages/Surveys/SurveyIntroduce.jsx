@@ -15,7 +15,7 @@ import {
     saveSurveyDraft,
 } from './surveyDraft.js';
 import { getSurveyErrorMessage, postSurveys, updateSurveys } from '../../api/surveys/surveys.js';
-import { changeNickname, getUserProfile } from '../../api/users/users.js';
+import { changeNickname } from '../../api/users/users.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import RequiredFieldsModal from '../../components/RequiredFieldsModal.jsx';
 import {
@@ -39,36 +39,20 @@ function SurveyIntroduce() {
         saveSurveyDraft({ introduce, visibleProfileFields });
     }, [introduce, visibleProfileFields]);
 
-    useEffect(() => {
-        let isMounted = true;
-
-        if (!isEditMode) return undefined;
-
-        getUserProfile()
-            .then((profile) => {
-                if (!isMounted) return;
-                setNickname((currentNickname) =>
-                    currentNickname || profile?.nickname || profile?.detail?.realName || '',
-                );
-            })
-            .catch((error) => {
-                console.error('프로필 정보를 불러오지 못했습니다.', error);
-            });
-
-        return () => {
-            isMounted = false;
-        };
-    }, [isEditMode]);
-
     async function handleNext() {
         if (isSubmitting) return;
 
-        if (hasMissingSurveyIntroduceFields({ nickname, introduce, visibleProfileFields })) {
+        if (hasMissingSurveyIntroduceFields({
+            nickname,
+            introduce,
+            visibleProfileFields,
+            requireNickname: !isEditMode,
+        })) {
             setErrorMessage('');
             setShowRequiredFieldsModal(true);
             return;
         }
-        if (nickname.trim().length > 8) {
+        if (!isEditMode && nickname.trim().length > 8) {
             setErrorMessage('닉네임은 8자 이하로 입력해주세요.');
             return;
         }
@@ -91,7 +75,9 @@ function SurveyIntroduce() {
         try {
             setIsSubmitting(true);
             setErrorMessage('');
-            await changeNickname(nickname.trim());
+            if (!isEditMode) {
+                await changeNickname(nickname.trim());
+            }
             if (isEditMode) {
                 await updateSurveys(requestBody);
             } else {
@@ -133,6 +119,7 @@ function SurveyIntroduce() {
                 </p>
             </header>
             <section className="flex flex-col flex-1 gap-8">
+                {!isEditMode && (
                 <div className="w-48 max-w-full">
                     <InlineInput
                         name="nickname"
@@ -158,6 +145,7 @@ function SurveyIntroduce() {
                         )}
                     />
                 </div>
+                )}
                 <TextArea
                     label="자기소개"
                     placeholder="본인을 소개해주세요!"

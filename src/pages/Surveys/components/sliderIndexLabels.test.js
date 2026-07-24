@@ -9,12 +9,18 @@ test('Slider supports optional positioned index labels', async () => {
   );
 
   assert.match(source, /indexLabels/);
-  assert.match(source, /indexLabels\[item\]/);
   assert.match(source, /Array\.isArray\(indexLabel\)/);
   assert.match(source, /indexLabel\.map/);
   assert.match(source, /className="block"/);
+  assert.match(source, /const displayedIndexLabels = \{/);
+  assert.match(source, /1: leftDescription/);
+  assert.match(source, /\[lastValue\]: rightDescription/);
+  assert.match(source, /\.\.\.indexLabels/);
+  assert.match(source, /displayedIndexLabels\[item\]/);
+  assert.doesNotMatch(source, /\{\(leftDescription \|\| rightDescription\) && \(/);
   assert.match(source, /text-\[10px\]/);
   assert.match(source, /whitespace-nowrap/);
+  assert.match(source, /-translate-x-1\/2/);
   assert.match(source, /h-8/);
 });
 

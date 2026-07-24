@@ -12,10 +12,15 @@ function Slider({
 }) {
     const sliderId = useId();
     const lastValue = Math.max(1, Math.floor(Number(range) || 1));
+    const displayedIndexLabels = {
+        ...(leftDescription ? { 1: leftDescription } : {}),
+        ...(rightDescription ? { [lastValue]: rightDescription } : {}),
+        ...indexLabels,
+    };
     const values = Array.from({ length: lastValue }, (_, index) => index + 1);
     const hasValue = Number.isInteger(value) && value >= 1 && value <= lastValue;
     const inputValue = hasValue ? value : 1;
-    const hasIndexLabels = Object.keys(indexLabels).length > 0;
+    const hasIndexLabels = Object.keys(displayedIndexLabels).length > 0;
 
     const handleChange = (event) => {
         const nextValue = Number(event.target.value);
@@ -86,7 +91,7 @@ function Slider({
                 {hasIndexLabels && (
                     <div className="relative mx-[10px] mt-1 h-8 text-[10px] leading-4 text-fg-basic-muted">
                         {values.map((item) => {
-                            const indexLabel = indexLabels[item];
+                            const indexLabel = displayedIndexLabels[item];
                             if (!indexLabel) return null;
 
                             return (
@@ -107,13 +112,6 @@ function Slider({
                                 </span>
                             );
                         })}
-                    </div>
-                )}
-
-                {(leftDescription || rightDescription) && (
-                    <div className="mt-2 flex justify-between gap-4 text-[10px] leading-4 text-[#7D8BA1]">
-                        <span>{leftDescription}</span>
-                        <span className="text-right">{rightDescription}</span>
                     </div>
                 )}
             </div>

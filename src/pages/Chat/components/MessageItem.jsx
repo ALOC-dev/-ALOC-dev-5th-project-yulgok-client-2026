@@ -1,4 +1,5 @@
-import { getProfileImageUrl, PROFILE_IMAGE_FALLBACK_URL } from '../../../utils/profileImage';
+import { getProfileImageUrl } from '../../../utils/profileImage';
+import ProfileAvatar from './ProfileAvatar.jsx';
 
 function formatMessageTime(createdAt) {
   const date = new Date(createdAt);
@@ -19,7 +20,7 @@ function MessageItem({
   partnerName,
   partnerProfileImageUrl,
 }) {
-  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl);
+  const profileImageUrl = getProfileImageUrl(partnerProfileImageUrl, '');
   const showUnreadMark = isMine && !message.isRead;
   const showMineMeta = isMine && (showUnreadMark || showTime);
 
@@ -28,13 +29,10 @@ function MessageItem({
       {!isMine && (
         <div className="w-8 shrink-0 self-start">
           {showProfile && (
-            <img
+            <ProfileAvatar
               className="h-8 w-8 rounded-full bg-white object-cover"
-              src={profileImageUrl}
+              imageUrl={profileImageUrl}
               alt={`${partnerName} 프로필`}
-              onError={(event) => {
-                event.currentTarget.src = PROFILE_IMAGE_FALLBACK_URL;
-              }}
             />
           )}
         </div>

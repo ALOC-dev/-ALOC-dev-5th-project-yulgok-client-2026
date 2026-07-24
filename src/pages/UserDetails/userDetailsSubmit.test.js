@@ -7,14 +7,15 @@ const postUserDetails = () => 'post';
 const patchUserDetails = () => 'patch';
 const submitters = { patchUserDetails, postUserDetails };
 
-test('selects POST for GUEST and PATCH for USER', () => {
+test('selects POST for GUEST and PATCH for USER and ADMIN', () => {
   assert.equal(getUserDetailsSubmitter('GUEST', submitters), postUserDetails);
   assert.equal(getUserDetailsSubmitter('USER', submitters), patchUserDetails);
+  assert.equal(getUserDetailsSubmitter('ADMIN', submitters), patchUserDetails);
 });
 
 test('rejects missing and unsupported user roles', () => {
   assert.throws(() => getUserDetailsSubmitter(undefined, submitters), /unsupported user role/i);
-  assert.throws(() => getUserDetailsSubmitter('ADMIN', submitters), /unsupported user role/i);
+  assert.throws(() => getUserDetailsSubmitter('MODERATOR', submitters), /unsupported user role/i);
 });
 
 test('UserDetails refreshes status before submit and refreshes again only for GUEST', async () => {

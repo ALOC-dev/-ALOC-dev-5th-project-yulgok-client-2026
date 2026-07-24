@@ -36,3 +36,13 @@ test('web app manifest maps each app icon to its actual resolution', async () =>
         'public/icon-512.png',
     ].map((path) => access(projectFile(path))));
 });
+
+test('login shows the service logo without replacing the school watermark', async () => {
+    const login = await readFile(projectFile('src/pages/Login/Login.jsx'), 'utf8');
+
+    assert.match(login, /src="\/logo\.svg"/);
+    assert.match(login, /alt="율곡"/);
+    assert.match(login, /className="h-10 w-auto"/);
+    assert.match(login, /src="\/uos_logo\.svg"/);
+    assert.doesNotMatch(login, /<img src="" /);
+});

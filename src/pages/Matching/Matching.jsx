@@ -108,6 +108,16 @@ function Matching() {
         <ExeMatchBtn onExecute={handleExecuteMatching} isLoading={isExecuting} />
       </header>
 
+      <aside
+        className="mt-4 rounded-2xl border border-[#d4e2f4] bg-[#edf4fd] px-4 py-3 text-sm leading-6 text-fg-primary"
+        aria-label="매칭 시작 안내"
+      >
+        <p className="m-0 font-extrabold">룸메이트 매칭은 7월 28일부터 시작됩니다.</p>
+        <p className="m-0 mt-1 font-medium text-fg-basic-muted">
+          마이페이지에서 프로필 변경 및 설문 수정이 가능합니다.
+        </p>
+      </aside>
+
       <div className="flex min-w-0 flex-1 items-center justify-center pb-3 pt-[clamp(0.5rem,3vw,1rem)]">
         {isLoading && (
           <LoadingSpinner

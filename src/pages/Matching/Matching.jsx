@@ -4,10 +4,12 @@ import {
   getMatchingErrorMessage,
   getMatchingStatus,
 } from '../../api/matching/matching.js';
+import { Modal } from '../../components/Modal/index.js';
 import ExeMatchBtn from './components/ExeMatchBtn.jsx';
 import MatchingCardStack from './components/MatchingCardStack.jsx';
 
 function Matching() {
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
   const [people, setPeople] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -77,7 +79,8 @@ function Matching() {
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full min-w-0 max-w-[600px] flex-col overflow-x-clip px-[clamp(0.75rem,4vw,1.5rem)] pb-44 pt-[clamp(1rem,4vw,2rem)]">
+    <>
+      <section className="mx-auto flex min-h-[calc(100dvh-96px)] w-full min-w-0 max-w-[600px] flex-col overflow-x-clip px-[clamp(0.75rem,4vw,1.5rem)] pb-44 pt-[clamp(1rem,4vw,2rem)]">
       <header className="flex min-w-0 items-center justify-between gap-[clamp(0.5rem,3vw,0.75rem)]">
         <div className="min-w-0">
           <h1 className="font-heading text-[clamp(1.125rem,3vw,1.5rem)] font-extrabold tracking-[-0.02em] text-fg-primary">
@@ -128,7 +131,31 @@ function Matching() {
           <MatchingCardStack people={people} onStatusRefresh={refreshMatchingPeople} />
         )}
       </div>
-    </section>
+      </section>
+
+      <Modal
+        open={isNoticeOpen}
+        onClose={() => setIsNoticeOpen(false)}
+        title="매칭 이용 안내"
+        size="small"
+        closeOnOverlayClick={false}
+        closeOnEscape={false}
+        showCloseButton={false}
+      >
+        <div className="space-y-3 text-sm font-medium leading-6 text-fg-basic-muted">
+          <p className="m-0">
+            매칭 결과와 채팅은 룸메이트 선택을 돕기 위한 참고 정보이며, 최종 기숙사 룸메이트
+            신청은 학교 안내에 따라 별도로 진행해야 합니다.
+          </p>
+          <p className="m-0 font-bold text-fg-basic">
+            이에 따른 책임은 본인에게 있습니다.
+          </p>
+        </div>
+        <Modal.Footer>
+          <Modal.Button onClick={() => setIsNoticeOpen(false)}>확인</Modal.Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 

@@ -84,20 +84,29 @@ function Slider({
                 </div>
 
                 {hasIndexLabels && (
-                    <div className="relative mx-[10px] mt-1 h-4 text-[10px] leading-4 text-fg-basic-muted">
-                        {values.map((item) => indexLabels[item] && (
-                            <span
-                                key={item}
-                                style={{
-                                    left: lastValue === 1
-                                        ? "50%"
-                                        : `${((item - 1) / (lastValue - 1)) * 100}%`,
-                                }}
-                                className="absolute top-0 -translate-x-1/2 whitespace-nowrap text-center"
-                            >
-                                {indexLabels[item]}
-                            </span>
-                        ))}
+                    <div className="relative mx-[10px] mt-1 h-8 text-[10px] leading-4 text-fg-basic-muted">
+                        {values.map((item) => {
+                            const indexLabel = indexLabels[item];
+                            if (!indexLabel) return null;
+
+                            return (
+                                <span
+                                    key={item}
+                                    style={{
+                                        left: lastValue === 1
+                                            ? "50%"
+                                            : `${((item - 1) / (lastValue - 1)) * 100}%`,
+                                    }}
+                                    className="absolute top-0 -translate-x-1/2 whitespace-nowrap text-center"
+                                >
+                                    {Array.isArray(indexLabel)
+                                        ? indexLabel.map((line) => (
+                                            <span key={line} className="block">{line}</span>
+                                        ))
+                                        : indexLabel}
+                                </span>
+                            );
+                        })}
                     </div>
                 )}
 

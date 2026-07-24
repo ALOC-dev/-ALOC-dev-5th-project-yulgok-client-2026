@@ -10,8 +10,12 @@ test('Slider supports optional positioned index labels', async () => {
 
   assert.match(source, /indexLabels/);
   assert.match(source, /indexLabels\[item\]/);
+  assert.match(source, /Array\.isArray\(indexLabel\)/);
+  assert.match(source, /indexLabel\.map/);
+  assert.match(source, /className="block"/);
   assert.match(source, /text-\[10px\]/);
   assert.match(source, /whitespace-nowrap/);
+  assert.match(source, /h-8/);
 });
 
 test('SurveySleep aligns all bedtime descriptions through one index label map', async () => {
@@ -22,7 +26,7 @@ test('SurveySleep aligns all bedtime descriptions through one index label map', 
 
   assert.match(
     source,
-    /label="취침 시간대"\s*indexLabels=\{\{\s*1: '10시 이전',\s*2: '10시~11시',\s*3: '11시~12시',\s*4: '12시~1시',\s*5: '새벽 1시 이후',?\s*\}\}/,
+    /label="취침 시간대"\s*indexLabels=\{\{\s*1: \['10시', '이전'\],\s*2: '10시~11시',\s*3: '11시~12시',\s*4: '12시~1시',\s*5: \['새벽 1시', '이후'\],?\s*\}\}/,
   );
 });
 

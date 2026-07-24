@@ -75,7 +75,7 @@ function ChatListItem({
       >
         <div className="relative shrink-0">
           <img
-            className="h-13 w-13 rounded-full bg-ui-sub object-cover"
+            className="h-13 w-13 rounded-full bg-white object-cover"
             src={profileImageUrl}
             alt={`${partnerName} 프로필`}
             onError={(event) => {

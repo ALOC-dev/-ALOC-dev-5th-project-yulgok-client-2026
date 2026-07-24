@@ -29,7 +29,7 @@ function MessageItem({
         <div className="w-8 shrink-0 self-start">
           {showProfile && (
             <img
-              className="h-8 w-8 rounded-full bg-ui-sub object-cover"
+              className="h-8 w-8 rounded-full bg-white object-cover"
               src={profileImageUrl}
               alt={`${partnerName} 프로필`}
               onError={(event) => {

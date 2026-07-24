@@ -167,7 +167,7 @@ function MatchingCard({ person, isFront = false }) {
       <div className="relative h-[clamp(9.5rem,calc(28vh+6vw),22rem)] overflow-hidden">
         {profileImageUrl ? (
           <img
-            className="h-full w-full bg-[#dce7f7] object-cover"
+            className="h-full w-full bg-white object-cover"
             src={profileImageUrl}
             alt={`${person.name || '사용자'} 프로필`}
             onError={(event) => {

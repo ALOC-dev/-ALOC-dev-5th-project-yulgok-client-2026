@@ -40,7 +40,7 @@ function ChatRoomHeader({
       </button>
 
       <img
-        className="h-10 w-10 shrink-0 rounded-full bg-ui-sub object-cover"
+        className="h-10 w-10 shrink-0 rounded-full bg-white object-cover"
         src={profileImageUrl}
         alt={`${partnerName} 프로필`}
         onError={(event) => {

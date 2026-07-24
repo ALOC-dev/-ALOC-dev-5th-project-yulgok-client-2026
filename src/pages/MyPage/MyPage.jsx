@@ -114,14 +114,14 @@ function ProfileAvatar({ profile, size = 'large' }) {
       <img
         src={imageUrl}
         alt={`${getDisplayName(profile)} 프로필`}
-        className={`${sizeClass} rounded-[22px] border border-white/50 object-cover`}
+        className={`${sizeClass} rounded-[22px] border border-white/50 bg-white object-cover`}
       />
     );
   }
 
   return (
     <div
-      className={`${sizeClass} flex items-center justify-center rounded-[22px] border border-white/50 bg-white/20 font-extrabold text-white`}
+      className={`${sizeClass} flex items-center justify-center rounded-[22px] border border-white/50 bg-white font-extrabold text-brand-primary`}
       aria-label={PROFILE_PLACEHOLDER}
     >
       {getProfileInitial(profile)}

@@ -6,7 +6,7 @@ export async function postSurveys(requestBody) {
 }
 
 export async function updateSurveys(requestBody) {
-    const response = await apiClient.patch('/api/surveys', requestBody);
+    const response = await apiClient.patch('/api/surveys/me', requestBody);
     return response.data;
 }
 
